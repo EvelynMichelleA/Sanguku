@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
                 'id_role' => 2,
                 'name' => 'Michael Anderson',
                 'username' => 'patrickfischer',
-                'email' => 'valen@gmail.com',
+                'email' => 'michelleaurelia1544@gmail.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('password1'),
                 'remember_token' => Str::random(10),

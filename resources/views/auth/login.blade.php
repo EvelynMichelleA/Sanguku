@@ -1,50 +1,218 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+<head>
+    <title>Login Page</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #2758A7;
+        }
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        .left {
+            flex: 0.7;
+            background: url('/img/SangukuLogin.jpg') no-repeat center bottom;
+            background-size: cover;
+            position: relative;
+        }
+
+        .left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(39, 88, 167, 0.5);
+            z-index: 1;
+        }
+
+        .sanguku-text-background {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 5em;
+            font-weight: bold;
+            color: white;
+            z-index: 2;
+        }
+
+        .info-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: Arial, sans-serif;
+            font-size: 1.5em;
+            color: white;
+            z-index: 2;
+        }
+
+        .right {
+            flex: 0.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFFFFF;
+        }
+
+        .login-form {
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-form h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .login-form p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .sanguku-text {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #2758A7 !important;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+
+        .login-form input[type="email"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            box-sizing: border-box;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2758A7;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .login-form button:hover {
+            background-color: #487FD7;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .forgot-password a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .forgot-password a:hover {
+            color: #2f4f4f;
+        }
+
+        .remember-me {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 20px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <div class="sanguku-text-background">SANGUKU</div>
+            <div class="info-text">Sistem Informasi Sanguku Cafe</div>
         </div>
+        <div class="right">
+            <div class="login-form">
+                <h1>WELCOME TO</h1>
+                <p class="sanguku-text">SANGUKU</p>
+                <p>Login to your account</p>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+                <!-- Session Flash Messages -->
+                @if (session()->has('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                @if (session()->has('loginError'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('loginError') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                <!-- Login Form -->
+                <form action="/login" method="post">
+                    @csrf
+                    <div class="form-floating">
+                        <input type="email" name="email"
+                            class="form-control @error('email') is-invalid @enderror" id="email"
+                            placeholder="Email" required value="{{ old('email') }}">
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="password" name="password" class="form-control" id="password"
+                            placeholder="Password" required>
+                    </div>
+
+                    <div class="remember-me">
+                        <input id="remember_me" type="checkbox" name="remember">
+                        <label for="remember_me">Keep me logged in</label>
+                    </div>
+
+                    <div class="forgot-password">
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}">Forgot your password?</a>
+                        @endif
+                    </div>
+
+                    <button type="submit">Log in</button>
+
+                    <!-- Pesan Kesalahan -->
+                    @error('email')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </form>
+            </div>
         </div>
+    </div>
+</body>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</html>
 
 @if(session('error'))
     <div class="alert alert-danger">

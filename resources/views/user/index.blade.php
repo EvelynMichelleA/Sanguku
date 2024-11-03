@@ -51,7 +51,8 @@
             margin-bottom: 15px;
         }
 
-        .sidebar-menu a, .sidebar-menu form button {
+        .sidebar-menu a,
+        .sidebar-menu button {
             display: flex;
             align-items: center;
             color: #ffffff;
@@ -63,9 +64,15 @@
             border: none;
             font-family: 'Poppins', sans-serif;
             cursor: pointer;
+            width: 100%;
+            /* Menggunakan lebar penuh */
+            text-align: left;
+            box-sizing: border-box;
+            /* Agar padding termasuk dalam lebar elemen */
         }
 
-        .sidebar-menu a i, .sidebar-menu form button i {
+        .sidebar-menu a i,
+        .sidebar-menu form button i {
             margin-right: 10px;
         }
 
@@ -73,14 +80,6 @@
         .sidebar-menu a:hover,
         .sidebar-menu form button:hover {
             background-color: #3b82f6;
-        }
-
-        /* Hover effect for Logout button */
-        .sidebar-menu form button:hover {
-            color: #ffffff;
-            background-color: #3b82f6;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
         }
 
         /* Styling Content */
@@ -222,10 +221,10 @@
                 @endif
             </li>
             <li>
-                <!-- Form Logout -->
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                <!-- Logout Button -->
+                <form action="{{ route('logout') }}" method="POST" style="width: 100%;">
                     @csrf
-                    <button type="submit" style="display: flex; align-items: center; width: 100%; padding: 10px 20px; color: #ffffff; background: none; border: none; cursor: pointer;">
+                    <button type="submit">
                         <i class="fas fa-power-off"></i> Logout
                     </button>
                 </form>

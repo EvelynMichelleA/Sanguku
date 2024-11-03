@@ -18,6 +18,7 @@
     <!-- Link Google Fonts untuk Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Terapkan font Poppins ke seluruh halaman */
         body {
@@ -60,8 +61,9 @@
             margin-bottom: 15px;
         }
 
+        
         .sidebar-menu a,
-        .sidebar-menu form button {
+        .sidebar-menu button {
             display: flex;
             align-items: center;
             color: #ffffff;
@@ -73,6 +75,11 @@
             border: none;
             font-family: 'Poppins', sans-serif;
             cursor: pointer;
+            width: 100%;
+            /* Menggunakan lebar penuh */
+            text-align: left;
+            box-sizing: border-box;
+            /* Agar padding termasuk dalam lebar elemen */
         }
 
         .sidebar-menu a i,
@@ -86,13 +93,6 @@
             background-color: #3b82f6;
         }
 
-        /* Hover effect for Logout button */
-        .sidebar-menu form button:hover {
-            color: #ffffff;
-            background-color: #3b82f6;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
 
         /* Styling Content */
         .content {
@@ -152,6 +152,23 @@
             margin: 0;
             color: #1e3a8a;
         }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            margin-left: 20px; /* Mengatur margin kiri dari judul */
+        }
+
+        .chart-container {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 60%; /* Mengatur lebar chart lebih kecil */
+            margin-left: 20px; /* Mengatur margin kiri dari chart container */
+        }
     </style>
 </head>
 
@@ -185,11 +202,10 @@
                     @endif
                 </li>
                 <li>
-                    <!-- Form Logout -->
-                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    <!-- Logout Button -->
+                    <form action="{{ route('logout') }}" method="POST" style="width: 100%;">
                         @csrf
-                        <button type="submit"
-                            style="display: flex; align-items: center; width: 100%; padding: 10px 20px; color: #ffffff; background: none; border: none; cursor: pointer;">
+                        <button type="submit">
                             <i class="fas fa-power-off"></i> Logout
                         </button>
                     </form>
@@ -227,13 +243,54 @@
             </div>
         </div>
 
-        <!-- Content Section -->
-        <div class="header mt-8">Penjualan Bulan Ini</div>
-        <div>
-            <img src="https://storage.googleapis.com/a1aa/image/XkOVfE7tSWRVa61CucZJky2BDPK8o5mf5fNNOPs8nkKVjrYnA.jpg"
-                alt="Sales Chart" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <!-- Judul Grafik Penjualan Bulanan -->
+        <div class="chart-title">Penjualan Tahun Ini</div>
+
+        <!-- Grafik Penjualan Bulanan -->
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
         </div>
     </div>
+
+    <!-- Script Chart.js -->
+    <script>
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ],
+                datasets: [{
+                    label: 'Total Pendapatan (Rp)',
+                    data: @json($dataPenjualan), // Data dari route
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
+
+

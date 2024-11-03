@@ -12,6 +12,8 @@ use App\Http\Controllers\{
     TransaksiPenjualanController,
     LaporanTransaksiPenjualanController
 };
+use App\Models\TransaksiPenjualan;
+use Carbon\Carbon;
 
 // Redirect to login
 Route::get('/', function () {
@@ -20,7 +22,24 @@ Route::get('/', function () {
 
 // Dashboard
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    // Hitung total penjualan per bulan untuk tahun ini menggunakan SQLite-compatible syntax
+    $penjualanBulanan = TransaksiPenjualan::selectRaw("strftime('%m', tanggal_transaksi) as bulan, SUM(total_biaya) as total")
+        ->whereYear('tanggal_transaksi', Carbon::now()->year)
+        ->groupBy('bulan')
+        ->orderBy('bulan')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [(int)$item->bulan => $item->total];
+        })
+        ->toArray();
+
+    // Pastikan semua bulan memiliki data, jika tidak ada, set menjadi 0
+    $dataPenjualan = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $dataPenjualan[] = $penjualanBulanan[$i] ?? 0;
+    }
+
+    return view('dashboard', compact('dataPenjualan'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route yang bisa diakses oleh semua role

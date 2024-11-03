@@ -51,8 +51,9 @@
             margin-bottom: 15px;
         }
 
+        
         .sidebar-menu a,
-        .sidebar-menu form button {
+        .sidebar-menu button {
             display: flex;
             align-items: center;
             color: #ffffff;
@@ -64,6 +65,11 @@
             border: none;
             font-family: 'Poppins', sans-serif;
             cursor: pointer;
+            width: 100%;
+            /* Menggunakan lebar penuh */
+            text-align: left;
+            box-sizing: border-box;
+            /* Agar padding termasuk dalam lebar elemen */
         }
 
         .sidebar-menu a i,
@@ -196,10 +202,10 @@
                 @endif
             </li>
             <li>
-                <!-- Form Logout -->
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                <!-- Logout Button -->
+                <form action="{{ route('logout') }}" method="POST" style="width: 100%;">
                     @csrf
-                    <button type="submit" style="display: flex; align-items: center; width: 100%; padding: 10px 20px; color: #ffffff; background: none; border: none; cursor: pointer; font-size: 18px;">
+                    <button type="submit">
                         <i class="fas fa-power-off"></i> Logout
                     </button>
                 </form>
