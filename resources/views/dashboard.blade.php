@@ -1,17 +1,222 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@php
+    use App\Models\Pelanggan;
+    use App\Models\TransaksiPenjualan;
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("You're logged in!") }}
+    // Mengambil data secara langsung di Blade
+    $jumlahPelanggan = Pelanggan::count();
+    $jumlahTransaksi = TransaksiPenjualan::count();
+    $totalPendapatan = TransaksiPenjualan::sum('total_biaya'); // Sesuaikan dengan kolom pendapatan
+@endphp
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SANGUKU</title>
+    
+    <!-- Link Google Fonts untuk Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Terapkan font Poppins ke seluruh halaman */
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Styling Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #1e3a8a;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            font-size: 20px; /* Ukuran teks menjadi 20px */
+            font-weight: bold;
+            font-family: 'Comic Sans MS';
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu a, .sidebar-menu form button {
+            display: flex;
+            align-items: center;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+
+        .sidebar-menu a i, .sidebar-menu form button i {
+            margin-right: 10px;
+        }
+
+        .sidebar-menu a.active,
+        .sidebar-menu a:hover,
+        .sidebar-menu form button:hover {
+            background-color: #3b82f6;
+        }
+
+        /* Hover effect for Logout button */
+        .sidebar-menu form button:hover {
+            color: #ffffff;
+            background-color: #3b82f6;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Styling Content */
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            background-color: #DEEFFE;
+        }
+
+        .header {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .card-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 200px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #3b82f6;
+            color: #fff;
+            padding: 12px;
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .card-content h3 {
+            font-size: 18px;
+            margin: 0;
+            color: #666;
+        }
+
+        .card-content p {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <h2>SANGUKU</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" class="active"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a></li>
+                <li><a href="/transaksi-penjualan"><i class="fas fa-exchange-alt"></i> Kelola Transaksi<br>Penjualan</a></li>
+                <li><a href="/pengeluaran"><i class="fas fa-wallet"></i> Kelola Pengeluaran</a></li>
+                <li><a href="/menu"><i class="fas fa-utensils"></i> Kelola Menu</a></li>
+                <li><a href="/pelanggan"><i class="fas fa-user-friends"></i> Kelola Pelanggan</a></li>
+                <li><a href="/laporan-transaksi"><i class="fas fa-file-alt"></i> Laporan Transaksi<br>Penjualan</a></li>
+                <li><a href="/laporan-pengeluaran"><i class="fas fa-file-invoice"></i> Laporan Pengeluaran</a></li>
+                <li>
+                    <!-- Form Logout -->
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="display: flex; align-items: center; width: 100%; padding: 10px 20px; color: #ffffff; background: none; border: none; cursor: pointer;">
+                            <i class="fas fa-power-off"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <div class="header">Dashboard</div>
+
+        <!-- Card Container -->
+        <div class="card-container">
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-users"></i></div>
+                <div class="card-content">
+                    <h3>Pelanggan</h3>
+                    <p>{{ $jumlahPelanggan }}</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="card-content">
+                    <h3>Pendapatan</h3>
+                    <p>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="card-content">
+                    <h3>Transaksi</h3>
+                    <p>{{ $jumlahTransaksi }}</p>
                 </div>
             </div>
         </div>
+
+        <!-- Content Section -->
+        <div class="header mt-8">Penjualan Bulan Ini</div>
+        <div>
+            <img src="https://storage.googleapis.com/a1aa/image/XkOVfE7tSWRVa61CucZJky2BDPK8o5mf5fNNOPs8nkKVjrYnA.jpg"
+                alt="Sales Chart" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        </div>
     </div>
-</x-app-layout>
+</body>
+
+</html>
