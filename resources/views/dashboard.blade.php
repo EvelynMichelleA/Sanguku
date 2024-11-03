@@ -14,7 +14,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SANGUKU</title>
-    
+
     <!-- Link Google Fonts untuk Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -42,7 +42,8 @@
 
         .sidebar-header {
             text-align: center;
-            font-size: 20px; /* Ukuran teks menjadi 20px */
+            font-size: 20px;
+            /* Ukuran teks menjadi 20px */
             font-weight: bold;
             font-family: 'Comic Sans MS';
             color: #ffffff;
@@ -59,7 +60,8 @@
             margin-bottom: 15px;
         }
 
-        .sidebar-menu a, .sidebar-menu form button {
+        .sidebar-menu a,
+        .sidebar-menu form button {
             display: flex;
             align-items: center;
             color: #ffffff;
@@ -73,7 +75,8 @@
             cursor: pointer;
         }
 
-        .sidebar-menu a i, .sidebar-menu form button i {
+        .sidebar-menu a i,
+        .sidebar-menu form button i {
             margin-right: 10px;
         }
 
@@ -161,18 +164,32 @@
             </div>
             <ul class="sidebar-menu">
                 <li><a href="/dashboard" class="active"><i class="fas fa-home"></i> Beranda</a></li>
-                <li><a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a></li>
-                <li><a href="/transaksi-penjualan"><i class="fas fa-exchange-alt"></i> Kelola Transaksi<br>Penjualan</a></li>
+                <li>
+                    @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                        <a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a>
+                    @endif
+                </li>
+                <li><a href="/transaksi-penjualan"><i class="fas fa-exchange-alt"></i> Kelola Transaksi<br>Penjualan</a>
+                </li>
                 <li><a href="/pengeluaran"><i class="fas fa-wallet"></i> Kelola Pengeluaran</a></li>
                 <li><a href="/menu"><i class="fas fa-utensils"></i> Kelola Menu</a></li>
                 <li><a href="/pelanggan"><i class="fas fa-user-friends"></i> Kelola Pelanggan</a></li>
-                <li><a href="/laporan-transaksi"><i class="fas fa-file-alt"></i> Laporan Transaksi<br>Penjualan</a></li>
-                <li><a href="/laporan-pengeluaran"><i class="fas fa-file-invoice"></i> Laporan Pengeluaran</a></li>
+                <li>
+                    @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                        <a href="/laporan-transaksi"><i class="fas fa-file-alt"></i> Laporan Transaksi Penjualan</a>
+                    @endif
+                </li>
+                <li>
+                    @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                        <a href="/laporan-pengeluaran"><i class="fas fa-file-invoice"></i> Laporan Pengeluaran</a>
+                    @endif
+                </li>
                 <li>
                     <!-- Form Logout -->
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
-                        <button type="submit" style="display: flex; align-items: center; width: 100%; padding: 10px 20px; color: #ffffff; background: none; border: none; cursor: pointer;">
+                        <button type="submit"
+                            style="display: flex; align-items: center; width: 100%; padding: 10px 20px; color: #ffffff; background: none; border: none; cursor: pointer;">
                             <i class="fas fa-power-off"></i> Logout
                         </button>
                     </form>

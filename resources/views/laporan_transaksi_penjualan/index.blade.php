@@ -180,7 +180,11 @@
         </div>
         <ul class="sidebar-menu">
             <li><a href="/dashboard"><i class="fas fa-home"></i> Beranda</a></li>
-            <li><a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a></li>
+            <li>
+                @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                    <a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a>
+                @endif
+            </li>
             <li><a href="/transaksi-penjualan"><i class="fas fa-exchange-alt"></i> Kelola Transaksi Penjualan</a></li>
             <li><a href="/pengeluaran"><i class="fas fa-wallet"></i> Kelola Pengeluaran</a></li>
             <li><a href="/menu"><i class="fas fa-utensils"></i> Kelola Menu</a></li>

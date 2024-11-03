@@ -187,9 +187,9 @@
                 </a>
             </li>
             <li>
-                <a href="/pengguna" class="active">
-                    <i class="fas fa-users"></i> Kelola Pengguna
-                </a>
+                @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                    <a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a>
+                @endif
             </li>
             <li>
                 <a href="/transaksi-penjualan">
@@ -212,14 +212,14 @@
                 </a>
             </li>
             <li>
-                <a href="/laporan-transaksi">
-                    <i class="fas fa-file-alt"></i> Laporan Transaksi<br>Penjualan
-                </a>
+                @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                    <a href="/laporan-transaksi"><i class="fas fa-file-alt"></i> Laporan Transaksi Penjualan</a>
+                @endif
             </li>
             <li>
-                <a href="/laporan-pengeluaran">
-                    <i class="fas fa-file-invoice"></i> Laporan Pengeluaran
-                </a>
+                @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
+                    <a href="/laporan-pengeluaran"><i class="fas fa-file-invoice"></i> Laporan Pengeluaran</a>
+                @endif
             </li>
             <li>
                 <!-- Form Logout -->

@@ -36,6 +36,6 @@ class User extends Authenticatable
     // Relasi ke model Role
     public function role()
     {
-        return $this->belongsTo(Role::class, 'id_role', 'id_role');
+        return $this->belongsTo(Role::class, 'id_role');
     }
 }

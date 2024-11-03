@@ -15,7 +15,7 @@ class MenuSeeder extends Seeder
                 'nama_menu' => 'Nasi Goreng',
                 'harga' => 20000.00,
                 'jenis_menu' => 'Makanan',
-                'gambar_menu' => 'menu/image1.jpg',
+                'gambar_menu' => url('/img/nasigoreng.jpg'),
                 'created_at' => now(),
                 'updated_at' => now(),
                 'deleted_at' => null,
