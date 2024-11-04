@@ -122,12 +122,14 @@
         .forgot-password {
             text-align: right;
             margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #666;
         }
 
         .forgot-password a {
             color: #666;
             text-decoration: none;
-            font-size: 0.9em;
+            font-weight: bold;
         }
 
         .forgot-password a:hover {
@@ -195,8 +197,9 @@
                     </div>
 
                     <div class="forgot-password">
-                        @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}">Forgot your password?</a>
+                        Don't have an account? 
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}">Register</a>
                         @endif
                     </div>
 

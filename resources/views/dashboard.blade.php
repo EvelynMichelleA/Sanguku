@@ -44,7 +44,6 @@
         .sidebar-header {
             text-align: center;
             font-size: 20px;
-            /* Ukuran teks menjadi 20px */
             font-weight: bold;
             font-family: 'Comic Sans MS';
             color: #ffffff;
@@ -61,7 +60,6 @@
             margin-bottom: 15px;
         }
 
-        
         .sidebar-menu a,
         .sidebar-menu button {
             display: flex;
@@ -76,10 +74,8 @@
             font-family: 'Poppins', sans-serif;
             cursor: pointer;
             width: 100%;
-            /* Menggunakan lebar penuh */
             text-align: left;
             box-sizing: border-box;
-            /* Agar padding termasuk dalam lebar elemen */
         }
 
         .sidebar-menu a i,
@@ -93,7 +89,6 @@
             background-color: #3b82f6;
         }
 
-
         /* Styling Content */
         .content {
             margin-left: 270px;
@@ -106,7 +101,55 @@
             font-weight: bold;
             color: #1e3a8a;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        /* Profile dropdown */
+        .profile-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-button {
+            color: #3b82f6;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .profile-button:hover {
+        color: #1e3a8a; /* Biru tua */
+    }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #3b82f6;
+            color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px #3b82f6(0, 0, 0, 0.1);
+            min-width: 120px;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .dropdown-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .dropdown-menu a:hover {
+        background-color: #80a4ff;
+    }
 
         .card-container {
             display: flex;
@@ -158,7 +201,7 @@
             font-weight: bold;
             color: #1e3a8a;
             margin-bottom: 10px;
-            margin-left: 20px; /* Mengatur margin kiri dari judul */
+            margin-left: 20px;
         }
 
         .chart-container {
@@ -166,8 +209,8 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 60%; /* Mengatur lebar chart lebih kecil */
-            margin-left: 20px; /* Mengatur margin kiri dari chart container */
+            width: 60%;
+            margin-left: 20px;
         }
     </style>
 </head>
@@ -216,7 +259,18 @@
 
     <!-- Content -->
     <div class="content">
-        <div class="header">Dashboard</div>
+        <div class="header">
+            Dashboard
+            <!-- Profile Dropdown -->
+            <div class="profile-menu">
+                <div class="profile-button" onclick="toggleDropdown()">
+                    {{ auth()->user()->name }} <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
+                </div>
+                <div class="dropdown-menu" id="profileDropdown">
+                    <a href="{{ route('profile.edit') }}">Profile Edit</a>
+                </div>
+            </div>
+        </div>
 
         <!-- Card Container -->
         <div class="card-container">
@@ -252,7 +306,7 @@
         </div>
     </div>
 
-    <!-- Script Chart.js -->
+    <!-- Script Chart.js dan Toggle Dropdown -->
     <script>
         const ctx = document.getElementById('salesChart').getContext('2d');
         const salesChart = new Chart(ctx, {
@@ -288,9 +342,21 @@
                 }
             }
         });
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.profile-menu')) {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                }
+            }
+        };
     </script>
 </body>
 
 </html>
-
-

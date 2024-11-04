@@ -14,6 +14,7 @@ use App\Http\Controllers\{
 };
 use App\Models\TransaksiPenjualan;
 use Carbon\Carbon;
+use App\Http\Controllers\Auth\PasswordController;
 
 // Redirect to login
 Route::get('/', function () {
@@ -78,6 +79,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index');
     Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
     Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
 });
 
 require __DIR__.'/auth.php';
