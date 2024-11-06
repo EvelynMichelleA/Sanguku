@@ -224,7 +224,7 @@
     <!-- Content -->
     <div class="content">
         <h1>Menu</h1>
-        <a href="#" class="add-button">TAMBAH</a>
+        <a href="{{ route('menu.create') }}" class="add-button">TAMBAH</a>
 
         <!-- Search Form -->
         <form action="{{ url('/menu') }}" method="GET" class="search-form" id="searchForm">
@@ -259,9 +259,14 @@
                         <td>{{ $item->jenis_menu }}</td>
                         <td>Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
                         <td class="action-icons">
-                            <a href="/menu/{{ $item->id_menu }}/edit"><i class="fas fa-edit"></i></a>
-                            <a href="/menu/{{ $item->id_menu }}"><i class="fas fa-eye"></i></a>
-                            <a href="/menu/{{ $item->id_menu }}/delete"><i class="fas fa-trash-alt"></i></a>
+                            <a href="{{ route('menu.edit', $item->id_menu) }}">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ route('menu.show', $item->id_menu) }}">
+                                <i class="fas fa-eye"></i> <!-- Font Awesome eye icon -->
+                            </a>
+                            <a href="{{ route('menu.destroy', $item->id_menu) }}">
+                                <i class="fas fa-trash-alt"></i></a>
                         </td>
                     </tr>
                 @empty

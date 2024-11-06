@@ -16,6 +16,8 @@ use App\Models\TransaksiPenjualan;
 use Carbon\Carbon;
 use App\Http\Controllers\Auth\PasswordController;
 
+
+
 // Redirect to login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -82,6 +84,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
+    Route::get('/menu/create', [MenuController::class, 'create'])->name('menu.create');
+    Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
+    Route::get('/menu/{id_menu}/edit', [MenuController::class, 'edit'])->name('menu.edit');
+    Route::get('/menu/{id_menu}/show', [MenuController::class, 'show'])->name('menu.show');
+    Route::put('/menu/{id_menu}', [MenuController::class, 'update'])->name('menu.update');
+    Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
 });
 
-require __DIR__.'/auth.php';
+
+
+require __DIR__ . '/auth.php';
