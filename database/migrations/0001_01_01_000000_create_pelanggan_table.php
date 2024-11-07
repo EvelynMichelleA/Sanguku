@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('email_pelanggan')->unique();
             $table->integer('jumlah_poin')->default(0);
             $table->timestamps();
-            $table->timestamp('deleted_at')->useCurrent()->nullable();
+            $table->softDeletes();
         });
     }
 

@@ -108,7 +108,10 @@ Route::get('/pengguna/{id}', [PenggunaController::class, 'show'])->name('penggun
 Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
 Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('pelanggan.create');
 Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
-
+Route::get('/pelanggan/{id_pelanggan}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
+Route::put('/pelanggan/{id_pelanggan}', [PelangganController::class, 'update'])->name('pelanggan.update');
+Route::get('/pelanggan/{id_pelanggan}', [PelangganController::class, 'show'])->name('pelanggan.show');
+Route::delete('/pelanggan/{id_pelanggan}', [PelangganController::class, 'destroy'])->name('pelanggan.destroy');
 
 
 require __DIR__ . '/auth.php';

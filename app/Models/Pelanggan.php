@@ -30,4 +30,6 @@ class Pelanggan extends Model
 
     // Menyediakan timestamps secara otomatis
     public $timestamps = true;
+
+    
 }

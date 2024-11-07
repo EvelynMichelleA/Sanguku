@@ -43,4 +43,44 @@ class PelangganController extends Controller
 
         return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil ditambahkan.');
     }
+
+    public function edit($id_pelanggan)
+    {
+        $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
+        return view('pelanggan.edit', compact('pelanggan'));
+    }
+
+    public function update(Request $request, $id_pelanggan)
+    {
+        // Validasi input
+        $validatedData = $request->validate([
+            'nama_pelanggan' => 'required|string|max:255',
+            'nomor_telepon' => 'required|string|max:15|unique:pelanggan,nomor_telepon,' . $id_pelanggan . ',id_pelanggan',
+            'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan,' . $id_pelanggan . ',id_pelanggan',
+        ]);
+
+        // Update data pelanggan
+        $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
+        $pelanggan->update($validatedData);
+
+        return redirect()->route('pelanggan.index')->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    public function show($id_pelanggan)
+{
+    $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
+    return view('pelanggan.show', compact('pelanggan'));
+}
+public function destroy($id_pelanggan)
+{
+    // Cari pelanggan berdasarkan ID
+    $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
+
+    // Hapus pelanggan
+    $pelanggan->delete();
+
+    // Redirect kembali dengan pesan sukses
+    return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus.');
+}
+
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,14 +9,17 @@
 
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Custom Sidebar Styles -->
     <style>
         body {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #cbe6fe;
         }
 
         /* Sidebar Styling */
@@ -96,10 +100,10 @@
         .content {
             margin-left: 270px;
             padding: 20px;
-            background-color: #f8fafc;
         }
     </style>
 </head>
+
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-blue-100">
 
@@ -109,38 +113,42 @@
                 <h2>SANGUKU</h2>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="/dashboard"><i class="fas fa-home"></i> Beranda</a></li>
                 <li>
                     @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
-                        <a href="/pengguna"><i class="fas fa-users"></i> Kelola Pengguna</a>
+                        <a href="/pengguna" class="{{ request()->is('pengguna') ? 'active' : '' }}"><i
+                                class="fas fa-users"></i> Kelola Pengguna</a>
                     @endif
                 </li>
-                <li><a href="/transaksi-penjualan"><i class="fas fa-exchange-alt"></i> Kelola Transaksi Penjualan</a></li>
-                <li><a href="/pengeluaran"><i class="fas fa-wallet"></i> Kelola Pengeluaran</a></li>
-                <li><a href="/menu" class="active"><i class="fas fa-utensils"></i> Kelola Menu</a></li>
-                <li><a href="/pelanggan"><i class="fas fa-user-friends"></i> Kelola Pelanggan</a></li>
+                <li><a href="/pelanggan" class="{{ request()->is('pelanggan') ? 'active' : '' }}"><i
+                            class="fas fa-user-friends"></i> Kelola Pelanggan</a></li>
+                <li><a href="/menu" class="{{ request()->is('menu') ? 'active' : '' }}"><i
+                            class="fas fa-utensils"></i> Kelola Menu</a></li>
+                <li><a href="/transaksi-penjualan" class="{{ request()->is('transaksi-penjualan') ? 'active' : '' }}"><i
+                            class="fas fa-exchange-alt"></i> Kelola Transaksi Penjualan</a></li>
+                <li><a href="/pengeluaran" class="{{ request()->is('pengeluaran') ? 'active' : '' }}"><i
+                            class="fas fa-wallet"></i> Kelola Pengeluaran</a></li>
                 <li>
                     @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
-                        <a href="/laporan-transaksi"><i class="fas fa-file-alt"></i> Laporan Transaksi Penjualan</a>
+                        <a href="/laporan-transaksi" class="{{ request()->is('laporan-transaksi') ? 'active' : '' }}"><i
+                                class="fas fa-file-alt"></i> Laporan Transaksi Penjualan</a>
                     @endif
                 </li>
                 <li>
                     @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
-                        <a href="/laporan-pengeluaran"><i class="fas fa-file-invoice"></i> Laporan Pengeluaran</a>
+                        <a href="/laporan-pengeluaran" class="{{ request()->is('laporan-pengeluaran') ? 'active' : '' }}"><i
+                                class="fas fa-file-invoice"></i> Laporan Pengeluaran</a>
                     @endif
-                </li>
-                <li>
-                    <!-- Logout Button -->
-                    <form action="{{ route('logout') }}" method="POST" style="width: 100%;">
-                        @csrf
-                        <button type="submit">
-                            <i class="fas fa-power-off"></i> Logout
-                        </button>
-                    </form>
                 </li>
             </ul>
-        </div>
-
+            <div style="position: absolute; bottom: 20px; width: 100%; text-align: center;">
+                <form action="{{ route('logout') }}" method="POST" style="width: 100%; padding: 0 20px;">
+                    @csrf
+                    <button type="submit" class="{{ request()->is('logout') ? 'active' : '' }}" style="width: 100%; display: flex; align-items: center;  background: none; color: #ffffff; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-family: 'Nunito', sans-serif;">
+                        <i class="fas fa-power-off" style="margin-right: 10px;"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div>        
         <!-- Page Heading -->
         @if (isset($header))
             <header class="bg-white shadow">
@@ -156,4 +164,5 @@
         </main>
     </div>
 </body>
+
 </html>
