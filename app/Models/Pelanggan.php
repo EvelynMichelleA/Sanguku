@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pelanggan extends Model
 {
-    use SoftDeletes;
+    use HasFactory, Notifiable;
 
     // Tentukan nama tabel jika tidak mengikuti konvensi Laravel
     protected $table = 'pelanggan';

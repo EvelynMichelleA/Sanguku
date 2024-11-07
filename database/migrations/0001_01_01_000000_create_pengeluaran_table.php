@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
             $table->string('nama_pengeluaran');
             $table->float('total_pengeluaran', 10, 2);
-            $table->timestamp('tanggal_pengeluaran')->useCurrent(); 
+            $table->date('tanggal_pengeluaran')->useCurrent(); 
             $table->string('keterangan_pengeluaran'); 
             $table->timestamps();
             $table->timestamp('deleted_at')->useCurrent()->nullable();

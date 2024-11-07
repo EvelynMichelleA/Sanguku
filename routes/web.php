@@ -110,4 +110,5 @@ Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('p
 Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
 
 
+
 require __DIR__ . '/auth.php';
