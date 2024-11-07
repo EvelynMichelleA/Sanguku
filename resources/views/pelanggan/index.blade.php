@@ -107,8 +107,7 @@
     <!-- Content -->
     <div class="content">
         <h1>Data Pelanggan</h1>
-
-        <a href = "{{ route('pelanggan.create') }}" class="add-button">TAMBAH</a>
+        <a href="{{ route('pelanggan.create') }}" class="add-button">TAMBAH</a>
 
         <form action="{{ url('/pelanggan') }}" method="GET" class="search-form" id="searchForm">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..." id="searchInput"

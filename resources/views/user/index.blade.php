@@ -109,7 +109,7 @@
     <!-- Content -->
     <div class="content">
         <h1>Pengguna</h1>
-        <a href="{{ route('pengguna.create') }}" class="btn btn-success">Tambah Pengguna</a>
+        <a href="{{ route('pengguna.create') }}" class="add-button">TAMBAH</a>
 
         <!-- Search Form -->
         <form action="{{ url('/pengguna') }}" method="GET" class="search-form" id="searchForm">

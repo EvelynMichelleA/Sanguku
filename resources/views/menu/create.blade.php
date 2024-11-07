@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-{{-- @section('content') --}}
-<div style="margin-left: 270px; padding: 20px; background-color: #DEEFFE; min-height: 100vh;">
-    <div style="width: 600px; margin-left: 20px; background-color: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+@section('content')
+<div style="padding: 20px; background-color: #DEEFFE; min-height: 100vh;">
+    <div style="max-width: 1500px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
         <h2 style="font-size: 24px; font-weight: bold; color: #1e3a8a; margin-bottom: 20px;">Menu >> Tambah Menu</h2>
         <form action="{{ route('menu.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -33,4 +33,4 @@
         </form>
     </div>
 </div>
-{{-- @endsection --}}
+@endsection
