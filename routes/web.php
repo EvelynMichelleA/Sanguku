@@ -84,14 +84,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
+
     Route::get('/menu/create', [MenuController::class, 'create'])->name('menu.create');
     Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
     Route::get('/menu/{id_menu}/edit', [MenuController::class, 'edit'])->name('menu.edit');
     Route::get('/menu/{id_menu}/show', [MenuController::class, 'show'])->name('menu.show');
     Route::put('/menu/{id_menu}', [MenuController::class, 'update'])->name('menu.update');
     Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
+
+    Route::get('/pengeluaran/create', [PengeluaranController::class, 'create'])->name('pengeluaran.create');
+    Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
+    Route::get('/pengeluaran/{id}/detail', [PengeluaranController::class, 'show'])->name('pengeluaran.show');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::resource('pengeluaran', PengeluaranController::class);
+});
+Route::get('/pengguna/create', [PenggunaController::class, 'create'])->name('pengguna.create');
+Route::post('/pengguna', [PenggunaController::class, 'store'])->name('pengguna.store');
+Route::get('/pengguna/{id}/edit', [PenggunaController::class, 'edit'])->name('pengguna.edit');
+Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update');
+Route::get('/pengguna/{id}', [PenggunaController::class, 'show'])->name('pengguna.show');
+Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('pelanggan.create');
+Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
 
 
 require __DIR__ . '/auth.php';

@@ -216,7 +216,7 @@
     <!-- Content -->
     <div class="content">
         <h1>Pengeluaran</h1>
-        <a href="#" class="add-button">TAMBAH</a>
+        <a href="{{ route('pengeluaran.create') }}" class="add-button">TAMBAH</a>
 
         <!-- Filter Section -->
         <div class="filter-section">
@@ -246,8 +246,9 @@
                         <td>Rp {{ number_format($item->total_pengeluaran, 0, ',', '.') }}</td>
                         <td>{{ $item->tanggal_pengeluaran }}</td>
                         <td class="action-icons">
-                            <a href="/pengeluaran/{{ $item->id_pengeluaran }}/edit"><i class="fas fa-edit"></i></a>
-                            <a href="/pengeluaran/{{ $item->id_pengeluaran }}"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('pengeluaran.show', $item->id_pengeluaran) }}" title="Lihat Detail">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="/pengeluaran/{{ $item->id_pengeluaran }}/delete"><i class="fas fa-trash-alt"></i></a>
                         </td>
                     </tr>

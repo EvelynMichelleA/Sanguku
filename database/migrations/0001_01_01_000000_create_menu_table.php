@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('jenis_menu');
             $table->string('gambar_menu');
             $table->timestamps();
-            $table->timestamp('deleted_at')->useCurrent()->nullable();
+            $table->softDeletes();
         });
     }
 

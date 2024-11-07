@@ -33,7 +33,8 @@
         }
 
         .sidebar-header h2 {
-            font-family: 'Comic Sans MS', cursive, sans-serif; /* Gunakan Comic Sans MS hanya untuk SANGUKU */
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            /* Gunakan Comic Sans MS hanya untuk SANGUKU */
             font-size: 30px;
             font-weight: bold;
             color: #ffffff;
@@ -235,11 +236,12 @@
     <!-- Content -->
     <div class="content">
         <h1>Pengguna</h1>
-        <a href="#" class="add-button">TAMBAH</a>
+        <a href="{{ route('pengguna.create') }}" class="btn btn-success">Tambah Pengguna</a>
 
         <!-- Search Form -->
         <form action="{{ url('/pengguna') }}" method="GET" class="search-form" id="searchForm">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..." id="searchInput">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..."
+                id="searchInput">
         </form>
 
         <!-- User Table -->
@@ -263,9 +265,19 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->role->nama_role }}</td>
                         <td class="action-icons">
-                            <a href="/pengguna/{{ $user->id }}/edit"><i class="fas fa-edit"></i></a>
-                            <a href="/pengguna/{{ $user->id }}"><i class="fas fa-eye"></i></a>
-                            <a href="/pengguna/{{ $user->id }}/delete"><i class="fas fa-trash-alt"></i></a>
+                            <a href="{{ route('pengguna.edit', $user->id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ route('pengguna.show', $user->id) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm text-danger p-0" onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')" style=" font-size: 20px; color: #1e3a8a; border:none; background:none;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -295,4 +307,3 @@
 </body>
 
 </html>
-

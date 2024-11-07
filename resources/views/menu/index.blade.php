@@ -265,8 +265,14 @@
                             <a href="{{ route('menu.show', $item->id_menu) }}">
                                 <i class="fas fa-eye"></i> <!-- Font Awesome eye icon -->
                             </a>
-                            <a href="{{ route('menu.destroy', $item->id_menu) }}">
-                                <i class="fas fa-trash-alt"></i></a>
+                            <form action="{{ route('menu.destroy', $item->id_menu) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm text-danger p-0" onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')" style=" font-size: 20px; color: #1e3a8a; border:none; background:none;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
                         </td>
                     </tr>
                 @empty

@@ -38,4 +38,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, 'id_role');
     }
+
+    protected $dates = ['deleted_at'];
 }
