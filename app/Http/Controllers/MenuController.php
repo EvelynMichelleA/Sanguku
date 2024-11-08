@@ -33,7 +33,10 @@ class MenuController extends Controller
         $gambarMenu = null;
 
         if ($request->hasFile('gambar_menu')) {
-            $gambarMenu = $request->file('gambar_menu')->store('menu', 'public');
+            $file = $request->file('gambar_menu');
+            $filename = time() . '_' . $file->getClientOriginalName(); // Tambahkan timestamp agar tetap unik
+            $file->move(public_path('img/'), $filename); // Simpan di folder public/img/menu
+            $gambarMenu = $filename; // Simpan nama file untuk disimpan di database
         }
 
         Menu::create([
@@ -57,25 +60,25 @@ class MenuController extends Controller
         $menu = Menu::findOrFail($id_menu);
 
         $request->validate([
-            'nama_menu' => 'required|string|max:255',
+            'nama_menu' => 'required|string|max:255|unique:menu,nama_menu',
             'jenis_menu' => 'required|string',
-            'harga_menu' => 'required|numeric',
+            'harga' => 'required|numeric',
             'gambar_menu' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $menu->nama_menu = $request->nama_menu;
         $menu->jenis_menu = $request->jenis_menu;
-        $menu->harga = $request->harga_menu;
+        $menu->harga = $request->harga;
 
         if ($request->hasFile('gambar_menu')) {
-            if ($menu->gambar_menu && file_exists(public_path('img/' . $menu->gambar_menu))) {
-                unlink(public_path('img/' . $menu->gambar_menu));
+            if ($menu->gambar_menu && file_exists(public_path('img' . $menu->gambar_menu))) {
+                unlink(public_path('img/' . $menu->gambar_menu)); // Hapus file lama jika ada
             }
-
+        
             $file = $request->file('gambar_menu');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('/img'), $filename);
-            $data['gambar_menu'] = '/' . $filename;
+            $filename = time() . '_' . $file->getClientOriginalName(); // Gunakan nama asli dengan timestamp
+            $file->move(public_path('img/'), $filename);
+            $menu->gambar_menu = $filename;
         }
         $menu->save();
 

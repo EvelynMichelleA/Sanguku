@@ -10,12 +10,29 @@ class PenggunaController extends Controller
 {
     public function index()
     {
-        // Ambil semua data pengguna dengan relasi ke tabel 'role'
-        $users = User::with('role')->get();
+        // Ambil nilai parameter 'search' langsung dari query string
+        $search = $_GET['search'] ?? null;
+    
+        // Query pengguna, termasuk relasi role
+        $users = User::with('role');
+    
+        // Jika ada parameter pencarian, tambahkan kondisi pencarian
+        if ($search) {
+            $users->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('username', 'like', '%' . $search . '%')
+                      ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+    
+        // Paginate hasil pencarian
+        $users = $users->paginate(20);
     
         // Kirim data ke view
-        return view('user.index', compact('users'));
+        return view('user.index', compact('users', 'search'));
     }
+    
+
     public function create()
     {
         return view('user.create'); // Sesuaikan dengan nama view

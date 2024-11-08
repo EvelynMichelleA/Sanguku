@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('menu', function (Blueprint $table) {
             $table->id('id_menu');
-            $table->string('nama_menu');
+            $table->string('nama_menu')->unique();
             $table->float('harga', 10, 2);
             $table->string('jenis_menu');
             $table->string('gambar_menu');

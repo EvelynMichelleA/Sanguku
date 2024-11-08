@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\{
     MenuController,
     ProfileController,
@@ -15,8 +16,7 @@ use App\Http\Controllers\{
 use App\Models\TransaksiPenjualan;
 use Carbon\Carbon;
 use App\Http\Controllers\Auth\PasswordController;
-
-
+use App\Http\Controllers\Middleware\CheckRole;
 
 // Redirect to login
 Route::get('/', function () {
@@ -85,27 +85,25 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::get('/menu/create', [MenuController::class, 'create'])->name('menu.create');
-    Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
-    Route::get('/menu/{id_menu}/edit', [MenuController::class, 'edit'])->name('menu.edit');
-    Route::get('/menu/{id_menu}/show', [MenuController::class, 'show'])->name('menu.show');
-    Route::put('/menu/{id_menu}', [MenuController::class, 'update'])->name('menu.update');
-    Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
-
     Route::get('/pengeluaran/create', [PengeluaranController::class, 'create'])->name('pengeluaran.create');
     Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
     Route::get('/pengeluaran/{id}/detail', [PengeluaranController::class, 'show'])->name('pengeluaran.show');
 });
 
+// Route untuk resource controller
 Route::middleware('auth')->group(function () {
     Route::resource('pengeluaran', PengeluaranController::class);
 });
+
+// Routes untuk Pengguna
 Route::get('/pengguna/create', [PenggunaController::class, 'create'])->name('pengguna.create');
 Route::post('/pengguna', [PenggunaController::class, 'store'])->name('pengguna.store');
 Route::get('/pengguna/{id}/edit', [PenggunaController::class, 'edit'])->name('pengguna.edit');
 Route::put('/pengguna/{id}', [PenggunaController::class, 'update'])->name('pengguna.update');
 Route::get('/pengguna/{id}', [PenggunaController::class, 'show'])->name('pengguna.show');
 Route::delete('/pengguna/{id}', [PenggunaController::class, 'destroy'])->name('pengguna.destroy');
+
+// Routes untuk Pelanggan
 Route::get('/pelanggan/create', [PelangganController::class, 'create'])->name('pelanggan.create');
 Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
 Route::get('/pelanggan/{id_pelanggan}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
@@ -113,5 +111,13 @@ Route::put('/pelanggan/{id_pelanggan}', [PelangganController::class, 'update'])-
 Route::get('/pelanggan/{id_pelanggan}', [PelangganController::class, 'show'])->name('pelanggan.show');
 Route::delete('/pelanggan/{id_pelanggan}', [PelangganController::class, 'destroy'])->name('pelanggan.destroy');
 
+// Routes untuk Menu
+Route::get('/menu/create', [MenuController::class, 'create'])->name('menu.create');
+Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
+Route::get('/menu/{id_menu}/edit', [MenuController::class, 'edit'])->name('menu.edit');
+Route::put('/menu/{id_menu}', [MenuController::class, 'update'])->name('menu.update');
+Route::get('/menu/{id_menu}/show', [MenuController::class, 'show'])->name('menu.show');
+Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
 
+// Auth routes
 require __DIR__ . '/auth.php';

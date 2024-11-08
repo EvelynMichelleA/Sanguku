@@ -8,9 +8,21 @@ use Illuminate\Support\Facades\Auth;
 
 class PengeluaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $pengeluaran = Pengeluaran::take(20)->get();
+        $query = Pengeluaran::query();
+
+    // Filter berdasarkan tanggal jika ada
+    if ($request->start_date && $request->end_date) {
+        $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+    } elseif ($request->start_date) {
+        $query->whereDate('tanggal', '>=', $request->start_date);
+    } elseif ($request->end_date) {
+        $query->whereDate('tanggal', '<=', $request->end_date);
+    }
+
+    $pengeluaran = $query->orderBy('tanggal', 'desc')->paginate(10);
     // Kirim data ke view
     return view('pengeluaran.index', compact('pengeluaran'));
     }

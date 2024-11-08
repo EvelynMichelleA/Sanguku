@@ -1,4 +1,5 @@
-@extends('layouts.app');
+@extends('layouts.app')
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,6 +17,7 @@
         /* Styling Content */
         .content {
             margin-left: 270px;
+            margin-top: 20px;
             padding: 20px;
             position: relative;
             background-color: #DEEFFE;
@@ -32,12 +34,16 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background-color: #3b82f6;
+            background-color: #1e3a8a;
             color: #fff;
             padding: 10px 20px;
             border-radius: 5px;
             text-decoration: none;
             font-size: 16px;
+        }
+
+        .add-button:hover {
+            background-color: #3b82f6;
         }
 
         /* Search Form */
@@ -46,20 +52,29 @@
             align-items: center;
             gap: 10px;
             margin: 20px 0;
+            position: relative;
         }
 
         .search-form input[type="text"] {
-            padding: 12px;
+            padding: 10px 40px;
             width: 100%;
             max-width: 1200px;
-            border: 2px solid #000000;
+            border: 2px solid #ccc;
             border-radius: 25px;
-            padding-left: 45px;
             font-size: 16px;
-            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/svgs/solid/search.svg');
-            background-size: 20px;
-            background-position: 15px center;
-            background-repeat: no-repeat;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-form input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            color: #666;
         }
 
         /* Table Styling */
@@ -101,6 +116,29 @@
         .action-icons a:hover {
             color: #3b82f6;
         }
+
+        .empty-message {
+            text-align: center;
+            font-size: 16px;
+            color: #1e3a8a;
+            font-weight: bold;
+        }
+
+        /* Styling untuk gambar di tabel */
+        .menu-image {
+            display: block;
+            /* Untuk memastikan gambar diposisikan sebagai block element */
+            margin: 0 auto;
+            /* Membuat gambar center */
+            max-width: 120px;
+            /* Ukuran maksimal gambar (ubah sesuai kebutuhan) */
+            height: auto;
+            /* Agar rasio gambar tetap terjaga */
+            border-radius: 5px;
+            /* Opsional, memberikan border melengkung */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            /* Opsional, menambahkan bayangan */
+        }
     </style>
 </head>
 
@@ -112,10 +150,12 @@
 
         <!-- Search Form -->
         <form action="{{ url('/menu') }}" method="GET" class="search-form" id="searchForm">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..." id="searchInput">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..." id="searchInput"
+                aria-label="Search">
         </form>
 
-        <!-- Menu Table -->
+        <!-- Table -->
         <table>
             <thead>
                 <tr>
@@ -134,8 +174,8 @@
                         <td>{{ $item->nama_menu }}</td>
                         <td>
                             @if ($item->gambar_menu)
-                            <img src="{{ asset('img/' . $item->gambar_menu) }}" alt="Gambar Menu" width="100">
-
+                            <img src="{{ asset('img/' . $item->gambar_menu) }}" alt="Gambar Menu" class="menu-image">
+                                 
                             @else
                                 Tidak ada gambar
                             @endif
@@ -143,25 +183,27 @@
                         <td>{{ $item->jenis_menu }}</td>
                         <td>Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
                         <td class="action-icons">
-                            <a href="{{ route('menu.edit', $item->id_menu) }}">
+                            <a href="{{ route('menu.edit', $item->id_menu) }}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="{{ route('menu.show', $item->id_menu) }}">
-                                <i class="fas fa-eye"></i> <!-- Font Awesome eye icon -->
+                            <a href="{{ route('menu.show', $item->id_menu) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
                             </a>
-                            <form action="{{ route('menu.destroy', $item->id_menu) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('menu.destroy', $item->id_menu) }}" method="POST"
+                                style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm text-danger p-0" onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')" style=" font-size: 20px; color: #1e3a8a; border:none; background:none;">
+                                <button type="submit" class="btn btn-sm text-danger p-0"
+                                    onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')"
+                                    style="font-size: 20px; color: #1e3a8a; border:none; background:none;">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
                         </td>
-                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6">Tidak ada menu yang ditemukan.</td>
+                        <td colspan="6" class="empty-message">Tidak ada menu yang ditemukan.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -169,7 +211,6 @@
     </div>
 
     <script>
-        // Debounce function to limit the rate at which a function can fire
         function debounce(func, delay) {
             let timeoutId;
             return function(...args) {
@@ -188,7 +229,7 @@
 
         searchInput.addEventListener('keyup', debounce(function() {
             searchForm.submit();
-        }, 500)); // Adjust the delay time (500 milliseconds) as needed
+        }, 500));
     </script>
 </body>
 

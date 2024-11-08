@@ -110,13 +110,15 @@
         <a href="{{ route('pengeluaran.create') }}" class="add-button">TAMBAH</a>
 
         <!-- Filter Section -->
-        <div class="filter-section">
-            <div>
-                <input type="text" placeholder="DD/MM/YYYY">
-                <input type="text" placeholder="DD/MM/YYYY">
-                <button><i class="fas fa-filter" style="color: white;"></i> Filter</button>
-            </div>
-        </div>
+        <div>
+            <form action="{{ route('pengeluaran.index') }}" method="GET" style="display: flex; gap: 10px;">
+                <input type="date" name="start_date" value="{{ request('start_date') }}" placeholder="DD/MM/YYYY" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <input type="date" name="end_date" value="{{ request('end_date') }}" placeholder="DD/MM/YYYY" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <button type="submit" style="padding: 10px 20px; background-color: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </form>
+        </div>        
 
         <!-- Pengeluaran Table -->
         <table>
@@ -130,7 +132,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($pengeluaran as $item)
+                @forelse ($pengeluaran as $item)
                     <tr>
                         <td>{{ $item->id_pengeluaran }}</td>
                         <td>{{ $item->nama_pengeluaran }}</td>
@@ -143,7 +145,11 @@
                             <a href="/pengeluaran/{{ $item->id_pengeluaran }}/delete"><i class="fas fa-trash-alt"></i></a>
                         </td>
                     </tr>
-                @endforeach
+                    @empty
+            <tr>
+                <td colspan="6" class="empty-message">Tidak ada data pengeluaran ditemukan.</td>
+            </tr>
+            @endforelse
             </tbody>
         </table>
     </div>
