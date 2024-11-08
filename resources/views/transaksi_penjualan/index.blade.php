@@ -114,7 +114,7 @@
         <h1>Transaksi Penjualan</h1>
 
         <div class="button-container">
-            <a href="#" class="add-button">TAMBAH</a>
+            <a href="{{ route('transaksi-penjualan.create') }}" class="add-button">TAMBAH</a>
             <a href="#" class="filter-button"><i class="fas fa-filter"></i></a>
         </div>
 

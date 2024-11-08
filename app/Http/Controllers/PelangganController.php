@@ -32,6 +32,11 @@ class PelangganController extends Controller
             'nama_pelanggan' => 'required|string|max:255',
             'nomor_telepon' => 'required|numeric|max:15|unique:pelanggan,nomor_telepon',
             'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan',
+        ], [
+            'nomor_telepon.unique' => 'The phone number has been taken.',
+            'email_pelanggan.unique' => 'The email has been taken.',
+            'nomor_telepon.numeric' => 'The phone number field must be a number.',
+            'nomor_telepon.max' => 'The phone number field must not be greater than 15.',
         ]);
 
         // Simpan data pelanggan
@@ -55,8 +60,11 @@ class PelangganController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|numeric|max:15|unique:pelanggan,nomor_telepon,' . $id_pelanggan . ',id_pelanggan',
-            'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan,' . $id_pelanggan . ',id_pelanggan',
+            'nomor_telepon' => 'required|numeric|max:15' . $id_pelanggan . ',id_pelanggan',
+            'email_pelanggan' => 'required|email' . $id_pelanggan . ',id_pelanggan',
+        ], [
+            'nomor_telepon.numeric' => 'The phone number field must be a number.',
+            'nomor_telepon.max' => 'The phone number field must not be greater than 15.',
         ]);
 
         // Update data pelanggan
@@ -67,20 +75,19 @@ class PelangganController extends Controller
     }
 
     public function show($id_pelanggan)
-{
-    $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
-    return view('pelanggan.show', compact('pelanggan'));
-}
-public function destroy($id_pelanggan)
-{
-    // Cari pelanggan berdasarkan ID
-    $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
+    {
+        $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
+        return view('pelanggan.show', compact('pelanggan'));
+    }
+    public function destroy($id_pelanggan)
+    {
+        // Cari pelanggan berdasarkan ID
+        $pelanggan = \App\Models\Pelanggan::findOrFail($id_pelanggan);
 
-    // Hapus pelanggan
-    $pelanggan->delete();
+        // Hapus pelanggan
+        $pelanggan->delete();
 
-    // Redirect kembali dengan pesan sukses
-    return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus.');
-}
-
+        // Redirect kembali dengan pesan sukses
+        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus.');
+    }
 }

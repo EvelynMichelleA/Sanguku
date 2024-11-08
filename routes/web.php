@@ -119,5 +119,11 @@ Route::put('/menu/{id_menu}', [MenuController::class, 'update'])->name('menu.upd
 Route::get('/menu/{id_menu}/show', [MenuController::class, 'show'])->name('menu.show');
 Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
 
+//Routes untuk Transaksi Penjualan
+Route::get('/transaksi-penjualan/create', [TransaksiPenjualanController::class, 'create'])->name('transaksi-penjualan.create');
+Route::post('/transaksi-penjualan/store', [TransaksiPenjualanController::class, 'store'])->name('transaksi-penjualan.store');
+// Route::post('/transaksi-penjualan/confirm', [TransaksiPenjualanController::class, 'confirm'])->name('transaksi-penjualan.confirm');
+Route::get('/transaksi-penjualan', [TransaksiPenjualanController::class, 'index'])->name('transaksi-penjualan.index');
+
 // Auth routes
 require __DIR__ . '/auth.php';

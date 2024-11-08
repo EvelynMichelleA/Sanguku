@@ -24,10 +24,14 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_menu' => 'required|string|max:255',
+            'nama_menu' => 'required|string|max:255|unique:menu,nama_menu',
             'jenis_menu' => 'required|string',
             'harga' => 'required|numeric',
-            'gambar_menu' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar_menu' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'harga.numeric' => 'The price field must be a number.',
+            'nama_menu.unique' => 'The name has been taken.',
+            'gambar_menu.required'=> 'Please fill this field.',
         ]);
 
         $gambarMenu = null;
@@ -60,10 +64,13 @@ class MenuController extends Controller
         $menu = Menu::findOrFail($id_menu);
 
         $request->validate([
-            'nama_menu' => 'required|string|max:255|unique:menu,nama_menu',
+            'nama_menu' => 'required|string|max:255',
             'jenis_menu' => 'required|string',
             'harga' => 'required|numeric',
-            'gambar_menu' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar_menu' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'harga.numeric' => 'The price field must be a number.',
+            'gambar_menu.required'=> 'Please fill this field.',
         ]);
 
         $menu->nama_menu = $request->nama_menu;
