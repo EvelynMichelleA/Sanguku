@@ -30,7 +30,7 @@ class PelangganController extends Controller
         // Validasi data
         $validatedData = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|string|max:15|unique:pelanggan,nomor_telepon',
+            'nomor_telepon' => 'required|numeric|max:15|unique:pelanggan,nomor_telepon',
             'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan',
         ]);
 
@@ -55,7 +55,7 @@ class PelangganController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|string|max:15|unique:pelanggan,nomor_telepon,' . $id_pelanggan . ',id_pelanggan',
+            'nomor_telepon' => 'required|numeric|max:15|unique:pelanggan,nomor_telepon,' . $id_pelanggan . ',id_pelanggan',
             'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan,' . $id_pelanggan . ',id_pelanggan',
         ]);
 

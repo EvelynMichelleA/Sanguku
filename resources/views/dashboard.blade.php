@@ -32,6 +32,7 @@
             font-size: 28px;
             font-weight: bold;
             color: #1e3a8a;
+            /* Warna teks Dashboard */
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
@@ -45,7 +46,8 @@
         }
 
         .profile-button {
-            color: #3b82f6;
+            color: #1e3a8a;
+            /* Warna sama dengan Dashboard */
             font-size: 16px;
             cursor: pointer;
             display: flex;
@@ -54,8 +56,9 @@
         }
 
         .profile-button:hover {
-        color: #1e3a8a; /* Biru tua */
-    }
+            color: #3b82f6;
+            /* Warna biru saat hover */
+        }
 
         .dropdown-menu {
             display: none;
@@ -65,7 +68,7 @@
             background-color: #3b82f6;
             color: #ffffff;
             border-radius: 8px;
-            box-shadow: 0 4px 8px #3b82f6(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             min-width: 120px;
             padding: 10px 0;
             z-index: 1000;
@@ -80,8 +83,8 @@
         }
 
         .dropdown-menu a:hover {
-        background-color: #80a4ff;
-    }
+            background-color: #80a4ff;
+        }
 
         .card-container {
             display: flex;

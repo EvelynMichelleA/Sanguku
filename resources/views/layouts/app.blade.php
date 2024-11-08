@@ -18,10 +18,10 @@
     <!-- Custom Sidebar Styles -->
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', sans-serif; /* Gunakan Poppins untuk semua elemen kecuali SANGUKU */
             background-color: #cbe6fe;
         }
-
+    
         /* Sidebar Styling */
         .sidebar {
             width: 250px;
@@ -33,34 +33,31 @@
             left: 0;
             padding: 20px 0;
         }
-
+    
         .sidebar-header {
             text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #ffffff;
             margin-bottom: 30px;
         }
-
+    
         .sidebar-header h2 {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            font-size: 30px;
+            font-family: 'Comic Sans MS', cursive, sans-serif; /* Font untuk SANGUKU */
+            font-size: 36px; /* Ukuran diperbesar */
             font-weight: bold;
             color: #ffffff;
             text-align: center;
             margin-bottom: 30px;
         }
-
+    
         .sidebar-menu {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-
+    
         .sidebar-menu li {
             margin-bottom: 15px;
         }
-
+    
         .sidebar-menu a,
         .sidebar-menu button {
             display: flex;
@@ -72,36 +69,37 @@
             font-size: 16px;
             background: none;
             border: none;
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Poppins', sans-serif; /* Font Poppins untuk menu lainnya */
             cursor: pointer;
             width: 100%;
             text-align: left;
             box-sizing: border-box;
         }
-
+    
         .sidebar-menu a i,
         .sidebar-menu form button i {
             margin-right: 10px;
         }
-
+    
         .sidebar-menu a.active,
         .sidebar-menu a:hover,
         .sidebar-menu form button:hover {
             background-color: #3b82f6;
         }
-
+    
         .sidebar-menu form button:hover {
             color: #ffffff;
             background-color: #3b82f6;
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
-
+    
         .content {
             margin-left: 270px;
             padding: 20px;
         }
     </style>
+    
 </head>
 
 <body class="font-sans antialiased">
@@ -113,6 +111,11 @@
                 <h2>SANGUKU</h2>
             </div>
             <ul class="sidebar-menu">
+                <li>
+                    <a href="/dashboard" class="{{ request()->is('dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-home"></i> Beranda
+                    </a>
+                </li>
                 <li>
                     @if (auth()->user()->role->nama_role === 'Owner' || auth()->user()->role->nama_role === 'Supervisor')
                         <a href="/pengguna" class="{{ request()->is('pengguna') ? 'active' : '' }}"><i
@@ -148,7 +151,8 @@
                     </button>
                 </form>
             </div>
-        </div>        
+        </div>
+              
         <!-- Page Heading -->
         @if (isset($header))
             <header class="bg-white shadow">

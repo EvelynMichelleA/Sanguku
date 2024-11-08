@@ -33,12 +33,18 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background-color: #3b82f6;
+            background-color: #1e3a8a;
+            /* Warna sama dengan teks "Pengguna" */
             color: #fff;
             padding: 10px 20px;
             border-radius: 5px;
             text-decoration: none;
             font-size: 16px;
+        }
+
+        .add-button:hover {
+            background-color: #3b82f6;
+            /* Warna hover lebih cerah */
         }
 
         /* Search Form */
@@ -47,20 +53,33 @@
             align-items: center;
             gap: 10px;
             margin: 20px 0;
+            position: relative;
         }
 
         .search-form input[type="text"] {
-            padding: 12px;
+            padding: 10px 40px;
+            /* Tambahkan padding kiri untuk ikon */
             width: 100%;
             max-width: 1200px;
-            border: 2px solid #000000;
+            border: 2px solid #ccc;
+            /* Outline lebih tipis dan lebih cerah */
             border-radius: 25px;
-            padding-left: 45px;
             font-size: 16px;
-            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/svgs/solid/search.svg');
-            background-size: 20px;
-            background-position: 15px center;
-            background-repeat: no-repeat;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-form input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            /* Warna outline saat fokus */
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            color: #666;
+            /* Warna ikon search */
         }
 
         /* Table Styling */
@@ -113,6 +132,7 @@
 
         <!-- Search Form -->
         <form action="{{ url('/pengguna') }}" method="GET" class="search-form" id="searchForm">
+            <i class="fas fa-search search-icon"></i> <!-- Ikon Search -->
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..."
                 id="searchInput">
         </form>
@@ -144,10 +164,13 @@
                             <a href="{{ route('pengguna.show', $user->id) }}" class="btn btn-sm btn-info">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('pengguna.destroy', $user->id) }}" method="POST"
+                                style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm text-danger p-0" onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')" style=" font-size: 20px; color: #1e3a8a; border:none; background:none;">
+                                <button type="submit" class="btn btn-sm text-danger p-0"
+                                    onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')"
+                                    style=" font-size: 20px; color: #1e3a8a; border:none; background:none;">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>

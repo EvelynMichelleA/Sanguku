@@ -1,4 +1,5 @@
-@extends('layouts.app');
+@extends('layouts.app')
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,9 +13,11 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+
         /* Styling Content */
         .content {
             margin-left: 270px;
+            margin-top: 20px; 
             padding: 20px;
             position: relative;
             background-color: #DEEFFE;
@@ -31,12 +34,16 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background-color: #3b82f6;
+            background-color: #1e3a8a;
             color: #fff;
             padding: 10px 20px;
             border-radius: 5px;
             text-decoration: none;
             font-size: 16px;
+        }
+
+        .add-button:hover {
+            background-color: #3b82f6;
         }
 
         /* Search Form */
@@ -45,20 +52,29 @@
             align-items: center;
             gap: 10px;
             margin: 20px 0;
+            position: relative;
         }
 
         .search-form input[type="text"] {
-            padding: 12px;
+            padding: 10px 40px;
             width: 100%;
             max-width: 1200px;
-            border: 2px solid #000000;
+            border: 2px solid #ccc;
             border-radius: 25px;
-            padding-left: 45px;
             font-size: 16px;
-            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/svgs/solid/search.svg');
-            background-size: 20px;
-            background-position: 15px center;
-            background-repeat: no-repeat;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-form input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            font-size: 18px;
+            color: #666;
         }
 
         /* Table Styling */
@@ -100,20 +116,29 @@
         .action-icons a:hover {
             color: #3b82f6;
         }
+
+        .empty-message {
+            text-align: center;
+            font-size: 16px;
+            color: #1e3a8a;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
     <!-- Content -->
     <div class="content">
-        <h1>Data Pelanggan</h1>
+        <h1>Pelanggan</h1>
         <a href="{{ route('pelanggan.create') }}" class="add-button">TAMBAH</a>
 
+        <!-- Search Form -->
         <form action="{{ url('/pelanggan') }}" method="GET" class="search-form" id="searchForm">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..." id="searchInput"
-                aria-label="Search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ..." id="searchInput" aria-label="Search">
         </form>
 
+        <!-- Table -->
         <table>
             <thead>
                 <tr>
@@ -136,10 +161,10 @@
                         <td class="action-icons">
                             <a href="{{ route('pelanggan.edit', $customer->id_pelanggan) }}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
-                            </a>                            
+                            </a>
                             <a href="{{ route('pelanggan.show', $customer->id_pelanggan) }}" class="btn btn-sm btn-info">
                                 <i class="fas fa-eye"></i>
-                            </a>                            
+                            </a>
                             <form action="{{ route('pelanggan.destroy', $customer->id_pelanggan) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
@@ -157,6 +182,7 @@
             </tbody>
         </table>
     </div>
+
     <script>
         function debounce(func, delay) {
             let timeoutId;
@@ -176,7 +202,7 @@
 
         searchInput.addEventListener('keyup', debounce(function() {
             searchForm.submit();
-        }, 500)); // Adjust the delay time (500 milliseconds) as needed
+        }, 500));
     </script>
 </body>
 
