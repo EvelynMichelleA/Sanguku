@@ -57,6 +57,7 @@ class TransaksiPenjualanController extends Controller
     // Decode menu_data dari JSON menjadi array
     $menus = json_decode($request->menu_data, true);
 
+    
     try {
         // Simpan data transaksi utama ke tabel transaksi_penjualan
         $transaksi = TransaksiPenjualan::create([
