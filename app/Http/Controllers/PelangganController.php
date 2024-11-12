@@ -30,13 +30,12 @@ class PelangganController extends Controller
         // Validasi data
         $validatedData = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|numeric|max:15|unique:pelanggan,nomor_telepon',
+            'nomor_telepon' => 'required|numeric|unique:pelanggan,nomor_telepon',
             'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan',
         ], [
             'nomor_telepon.unique' => 'The phone number has been taken.',
             'email_pelanggan.unique' => 'The email has been taken.',
             'nomor_telepon.numeric' => 'The phone number field must be a number.',
-            'nomor_telepon.max' => 'The phone number field must not be greater than 15.',
         ]);
 
         // Simpan data pelanggan
@@ -60,11 +59,12 @@ class PelangganController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|numeric|max:15' . $id_pelanggan . ',id_pelanggan',
-            'email_pelanggan' => 'required|email' . $id_pelanggan . ',id_pelanggan',
+            'nomor_telepon' => 'required|numeric|unique:pelanggan,nomor_telepon',
+            'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan',
         ], [
+            'nomor_telepon.unique' => 'The phone number has been taken.',
             'nomor_telepon.numeric' => 'The phone number field must be a number.',
-            'nomor_telepon.max' => 'The phone number field must not be greater than 15.',
+            'email_pelanggan.unique' => 'The email has been taken.',
         ]);
 
         // Update data pelanggan

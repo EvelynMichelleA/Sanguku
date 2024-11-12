@@ -1,83 +1,116 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-blue-900 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+<x-slot name="header">
+    <h2 class="font-semibold text-xl text-blue-900 leading-tight">
+        {{ __('Profile') }}
+    </h2>
+</x-slot>
 
-    <style>
-        /* Background utama */
-        body {
-            background-color: #f0f4f8;
-        }
+<style>
+    /* Font Poppins untuk seluruh form */
+    body, input, select, label, button, a {
+        font-family: 'Poppins', sans-serif;
+    }
 
-        /* Style untuk input agar kontras dengan background */
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        textarea {
-            background-color: #e6f0ff !important; /* Biru muda */
-            color: #1e3a8a; /* Teks biru tua */
-            border: 1px solid #cbd5e0; /* Border abu terang */
-            border-radius: 5px;
-            padding: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
+    /* Halaman Form Background */
+    .form-page {
+        padding: 20px;
+        background-color: #f8fafc; /* Latar belakang abu terang */
+        min-height: 100vh;
+    }
 
-        /* Style saat input dalam focus */
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        textarea:focus {
-            border-color: #3b82f6; /* Biru lebih cerah saat focus */
-            outline: none;
-        }
+    /* Card Styling */
+    .card {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        /* Warna teks header dan instruksi */
-        h3 {
-            color: #1e3a8a;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
 
-        p {
-            color: #4a5568; /* Abu-abu tua untuk teks instruksi */
-        }
+    /* Header Form */
+    .form-header {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1e3a8a;
+        margin-bottom: 20px;
+    }
 
-        /* Tombol save yang lebih kontras */
-        .btn-save {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: bold;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            text-transform: uppercase;
-        }
+    /* Styling Input */
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        margin-bottom: 15px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        .btn-save:hover {
-            background-color: #1e3a8a; /* Biru tua saat hover */
-        }
-    </style>
+    input:focus, select:focus {
+        border-color: #3b82f6; /* Border biru saat fokus */
+        outline: none;
+        box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); /* Shadow fokus */
+    }
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <!-- Update Profile Information -->
-            <div class="p-6 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
+    /* Button Styling */
+    .button-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .submit-button {
+        padding: 10px 20px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .submit-button:hover {
+        background-color: #3b82f6; /* Warna hover */
+    }
+
+    /* Success Message Styling */
+    .success-message {
+        background-color: #d1e7dd;
+        color: #0f5132;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    /* Label Styling */
+    label {
+        font-weight: bold;
+        color: #1e3a8a;
+        display: block;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="form-page">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <!-- Update Profile Information -->
+        <div class="card">
+            <div class="max-w-xl">
+                @include('profile.partials.update-profile-information-form')
             </div>
+        </div>
 
-            <!-- Update Password -->
-            <div class="p-6 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
+        <!-- Update Password -->
+        <div class="card">
+            <div class="max-w-xl">
+                @include('profile.partials.update-password-form')
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
