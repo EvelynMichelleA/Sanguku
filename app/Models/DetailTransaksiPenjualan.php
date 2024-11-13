@@ -17,4 +17,8 @@ class DetailTransaksiPenjualan extends Model
     {
         return $this->belongsTo(TransaksiPenjualan::class, 'id_transaksi_penjualan');
     }
+    public function menu()
+{
+    return $this->belongsTo(Menu::class, 'id_menu');
+}
 }

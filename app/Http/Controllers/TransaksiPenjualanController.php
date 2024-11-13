@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use App\Models\Pelanggan;
 use Illuminate\Http\Request;
 use App\Models\TransaksiPenjualan;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,34 @@ class TransaksiPenjualanController extends Controller
     public function index()
     {
         $transaksi = TransaksiPenjualan::with('details')->paginate(10); // Pastikan relasi 'details' sudah benar
-        return view('transaksi_penjualan.index', compact('transaksi'));
+        // Ambil data filter dari request global
+        $tanggalDari = request('tanggal_dari');
+        $tanggalSampai = request('tanggal_sampai');
+        $namaPelanggan = request('nama_pelanggan');
+
+        // Query dasar transaksi penjualan
+        $query = TransaksiPenjualan::query();
+
+        // Filter berdasarkan tanggal
+        if (!empty($tanggalDari) && !empty($tanggalSampai)) {
+            $query->whereBetween('tanggal_transaksi', [$tanggalDari, $tanggalSampai]);
+        }
+
+        // Filter berdasarkan nama pelanggan
+        if (!empty($namaPelanggan)) {
+            $query->whereHas('pelanggan', function ($q) use ($namaPelanggan) {
+                $q->where('nama_pelanggan', $namaPelanggan);
+            });
+        }
+
+        // Ambil data hasil filter
+        $transaksi = $query->get();
+
+        // Ambil semua data pelanggan untuk dropdown
+        $pelanggan = Pelanggan::all();
+
+        // Kirim data ke view
+        return view('transaksi_penjualan.index', compact('transaksi', 'pelanggan'));
     }
 
     public function create()
@@ -21,29 +49,6 @@ class TransaksiPenjualanController extends Controller
         $pelanggan = \App\Models\Pelanggan::all(); // Data pelanggan
         return view('transaksi_penjualan.create', compact('menus', 'pelanggan'));
     }
-
-    // public function confirm(Request $request)
-    // {
-    //     // Ambil data dari request untuk ditampilkan di halaman konfirmasi pembayaran
-    //     $totalTransaction = $request->input('total_transaction');
-    //     $menuData = json_decode($request->input('menu_data'), true);
-
-    //     // Ambil kembali informasi menu berdasarkan ID
-    //     $menus = [];
-    //     foreach ($menuData as $menu) {
-    //         $menuDetails = Menu::find($menu['menu_id']);
-    //         if ($menuDetails) {
-    //             $menus[] = [
-    //                 'id_menu' => $menuDetails->id,
-    //                 'nama_menu' => $menuDetails->nama_menu,
-    //                 'quantity' => $menu['quantity'],
-    //                 'price' => $menu['price'],
-    //             ];
-    //         }
-    //     }
-
-    //     return view('transaksi_penjualan.confirm', compact('totalTransaction', 'menus'));
-    // }
 
     public function store(Request $request)
 {
@@ -56,7 +61,10 @@ class TransaksiPenjualanController extends Controller
 
     // Decode menu_data dari JSON menjadi array
     $menus = json_decode($request->menu_data, true);
-
+    $menuIds = array_column($menus, 'menu_id');
+    if (Menu::whereIn('id_menu', $menuIds)->count() !== count($menuIds)) {
+        return back()->withErrors(['menu_data' => 'Beberapa ID menu tidak valid.']);
+    }    
     
     try {
         // Simpan data transaksi utama ke tabel transaksi_penjualan

@@ -122,7 +122,6 @@ Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu
 //Routes untuk Transaksi Penjualan
 Route::get('/transaksi-penjualan/create', [TransaksiPenjualanController::class, 'create'])->name('transaksi-penjualan.create');
 Route::post('/transaksi-penjualan/store', [TransaksiPenjualanController::class, 'store'])->name('transaksi-penjualan.store');
-// Route::post('/transaksi-penjualan/confirm', [TransaksiPenjualanController::class, 'confirm'])->name('transaksi-penjualan.confirm');
 Route::get('/transaksi-penjualan', [TransaksiPenjualanController::class, 'index'])->name('transaksi-penjualan.index');
 
 // Auth routes

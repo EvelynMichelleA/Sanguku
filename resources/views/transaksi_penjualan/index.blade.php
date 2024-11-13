@@ -1,4 +1,4 @@
-@extends('layouts.app');
+@extends('layouts.app')
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +13,7 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
-        /* Styling Content */
+
         .content {
             margin-left: 270px;
             padding: 20px;
@@ -28,45 +28,38 @@
             display: inline-block;
         }
 
-        /* Button Container Styling */
         .button-container {
             display: flex;
             position: absolute;
             top: 20px;
             right: 20px;
             gap: 10px;
-            /* Menambah jarak antar tombol */
         }
 
         .add-button {
             background-color: #3b82f6;
             color: #fff;
             padding: 8px 30px;
-            /* Meningkatkan tinggi dan lebar */
             border-radius: 5px;
             text-decoration: none;
             font-size: 16px;
-            /* Meningkatkan ukuran font */
         }
 
         .filter-button {
             background-color: #3b82f6;
             color: #fff;
             padding: 8px 20px;
-            /* Meningkatkan tinggi dan lebar */
             border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            /* Meningkatkan ukuran font */
         }
 
         .button-container a:hover {
             background-color: #1e3a8a;
         }
 
-        /* Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -105,17 +98,93 @@
         .action-icons a:hover {
             color: #3b82f6;
         }
+
+        /* Sidebar Filter Styling */
+        #filter-sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 1000;
+        }
+
+        #filter-sidebar h3 {
+            font-size: 20px;
+            color: #1e3a8a;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #filter-sidebar label {
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        #filter-sidebar input,
+        #filter-sidebar select,
+        #filter-sidebar button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        #filter-sidebar button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #filter-sidebar button:hover {
+            background-color: #1e3a8a;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Filter Sidebar -->
+    <div id="filter-sidebar">
+        <h3>Filter</h3>
+        <form action="{{ route('transaksi-penjualan.index') }}" method="GET">
+            <!-- Filter Tanggal Dari -->
+            <label for="tanggal_dari">Tanggal Dari</label>
+            <input type="date" id="tanggal_dari" name="tanggal_dari" value="{{ request('tanggal_dari') }}">
+            <!-- Filter Tanggal Sampai -->
+            <label for="tanggal_sampai">Tanggal Sampai</label>
+            <input type="date" id="tanggal_sampai" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}">
+            <!-- Filter Nama Pelanggan -->
+            <label for="nama_pelanggan">Nama Pelanggan</label>
+            <select id="nama_pelanggan" name="nama_pelanggan">
+                <option value="">Semua Pelanggan</option>
+                @foreach ($pelanggan as $p)
+                    <option value="{{ $p->nama_pelanggan }}"
+                        {{ request('nama_pelanggan') == $p->nama_pelanggan ? 'selected' : '' }}>
+                        {{ $p->nama_pelanggan }}
+                    </option>
+                @endforeach
+            </select>
+            <button type="submit">Terapkan</button>
+        </form>
+    </div>
+
     <!-- Content -->
     <div class="content">
         <h1>Transaksi Penjualan</h1>
 
         <div class="button-container">
             <a href="{{ route('transaksi-penjualan.create') }}" class="add-button">TAMBAH</a>
-            <a href="#" class="filter-button"><i class="fas fa-filter"></i></a>
+            <a href="#" class="filter-button" id="filter-button"><i class="fas fa-filter"></i></a>
         </div>
 
         <table>
@@ -130,7 +199,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($transaksi as $index => $trans)
+                @forelse ($transaksi as $index => $trans)
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $trans->pengguna->name }}</td>
@@ -138,18 +207,37 @@
                         <td>{{ $trans->tanggal_transaksi }}</td>
                         <td>Rp {{ number_format($trans->total_biaya, 0, ',', '.') }}</td>
                         <td class="action-icons">
-                            <a href="/transaksi-penjualan/{{ $trans->id_transaksi_penjualan }}/edit"><i
-                                    class="fas fa-edit"></i></a>
                             <a href="/transaksi-penjualan/{{ $trans->id_transaksi_penjualan }}"><i
                                     class="fas fa-eye"></i></a>
                             <a href="/transaksi-penjualan/{{ $trans->id_transaksi_penjualan }}/delete"><i
                                     class="fas fa-trash-alt"></i></a>
                         </td>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</body>
+                    @empty
+                        <tr>
+                            <td colspan="6"
+                                style="padding: 20px; text-align: center; color: #1e3a8a; font-size: 16px;">
+                                Tidak ada data transaksi penjualan ditemukan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-</html>
+        <script>
+            // JavaScript untuk membuka dan menutup sidebar filter
+            const filterButton = document.getElementById('filter-button');
+            const filterSidebar = document.getElementById('filter-sidebar');
+
+            filterButton.addEventListener('click', () => {
+                if (filterSidebar.style.right === '0px') {
+                    filterSidebar.style.right = '-300px';
+                } else {
+                    filterSidebar.style.right = '0px';
+                }
+            });
+        </script>
+    </body>
+
+    </html>
