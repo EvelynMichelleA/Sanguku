@@ -202,7 +202,7 @@
                 @forelse ($transaksi as $index => $trans)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $trans->pengguna->name }}</td>
+                        <td>{{ $trans->user->name }}</td>
                         <td>{{ $trans->pelanggan->nama_pelanggan }}</td>
                         <td>{{ $trans->tanggal_transaksi }}</td>
                         <td>Rp {{ number_format($trans->total_biaya, 0, ',', '.') }}</td>

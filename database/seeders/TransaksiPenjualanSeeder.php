@@ -4,112 +4,63 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\TransaksiPenjualan;
+use App\Models\DetailTransaksiPenjualan;
+use App\Models\Menu;
+use App\Models\Pelanggan;
+use App\Models\User;
 
 class TransaksiPenjualanSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
     public function run()
     {
-        DB::table('transaksi_penjualan')->insert([
-            [
-                'id_transaksi_penjualan' => 1,
-                'id_pelanggan' => 1,
-                'id' => 1,
-                'total_biaya' => rand(10000, 500000) / 100,
+        // Retrieve existing users and customers
+        $users = User::all();
+        $pelanggan = Pelanggan::all();
+        $menuItems = Menu::all();
+
+        // Seed 10 transaksi penjualan
+        for ($i = 0; $i < 10; $i++) {
+            $user = $users->random();
+            $customer = $pelanggan->random();
+            $totalBiaya = 0;
+
+            // Create transaksi penjualan
+            $transaksiPenjualan = TransaksiPenjualan::create([
+                'id_pelanggan' => $customer->id_pelanggan,
+                'id_user' => $user->id,
+                'total_biaya' => 0, // Will be updated after adding details
                 'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 2,
-                'id_pelanggan' => 2,
-                'id' => 2,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 3,
-                'id_pelanggan' => 3,
-                'id' => 3,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 4,
-                'id_pelanggan' => 4,
-                'id' => 4,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 5,
-                'id_pelanggan' => 5,
-                'id' => 5,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 6,
-                'id_pelanggan' => 6,
-                'id' => 6,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 7,
-                'id_pelanggan' => 7,
-                'id' => 7,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 8,
-                'id_pelanggan' => 8,
-                'id' => 8,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 9,
-                'id_pelanggan' => 9,
-                'id' => 9,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-            [
-                'id_transaksi_penjualan' => 10,
-                'id_pelanggan' => 10,
-                'id' => 10,
-                'total_biaya' => rand(10000, 500000) / 100,
-                'tanggal_transaksi' => now(),
-                'metode_pembayaran' => 'Cash', 
-                'created_at' => now(),
-                'updated_at' => null, 
-            ],
-        ]);
+                'metode_pembayaran' => 'Cash',
+            ]);
+
+            // Add 1-3 menu items to each transaksi
+            $detailCount = rand(1, 3);
+            for ($j = 0; $j < $detailCount; $j++) {
+                $menu = $menuItems->random();
+                $jumlah = rand(1, 5);
+                $subtotal = $menu->harga * $jumlah;
+                $totalBiaya += $subtotal;
+
+                DetailTransaksiPenjualan::create([
+                    'id_transaksi_penjualan' => $transaksiPenjualan->id_transaksi_penjualan,
+                    'id_menu' => $menu->id_menu,
+                    'nama_menu' => $menu->nama_menu,
+                    'jumlah' => $jumlah,
+                    'harga_satuan' => $menu->harga,
+                    'subtotal' => $subtotal,
+                ]);
+            }
+
+            // Update total biaya after adding details
+            $transaksiPenjualan->total_biaya = $totalBiaya;
+            $transaksiPenjualan->save();
+        }
     }
 }

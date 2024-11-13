@@ -120,9 +120,25 @@ Route::get('/menu/{id_menu}/show', [MenuController::class, 'show'])->name('menu.
 Route::delete('/menu/{id_menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
 
 //Routes untuk Transaksi Penjualan
-Route::get('/transaksi-penjualan/create', [TransaksiPenjualanController::class, 'create'])->name('transaksi-penjualan.create');
-Route::post('/transaksi-penjualan/store', [TransaksiPenjualanController::class, 'store'])->name('transaksi-penjualan.store');
-Route::get('/transaksi-penjualan', [TransaksiPenjualanController::class, 'index'])->name('transaksi-penjualan.index');
+Route::prefix('transaksi-penjualan')->name('transaksi-penjualan.')->group(function () {
+    // Menampilkan daftar transaksi penjualan
+    Route::get('/', [TransaksiPenjualanController::class, 'index'])->name('index');
+
+    // Menampilkan form untuk membuat transaksi penjualan baru
+    Route::get('/create', [TransaksiPenjualanController::class, 'create'])->name('create');
+
+    // Menyimpan transaksi penjualan baru
+    Route::post('/store', [TransaksiPenjualanController::class, 'store'])->name('store');
+
+     // Menambahkan item ke keranjang
+     Route::post('/add-to-cart', [TransaksiPenjualanController::class, 'addToCart'])->name('addToCart');
+
+     // Menghapus item dari keranjang
+     Route::get('/remove-from-cart/{id_menu}', [TransaksiPenjualanController::class, 'removeFromCart'])->name('removeFromCart');
+});
+
+Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan_pengeluaran.index');
+Route::get('/laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::class, 'exportPdf'])->name('laporan_pengeluaran.exportPDF');
 
 // Auth routes
 require __DIR__ . '/auth.php';
