@@ -203,12 +203,12 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $trans->user->name }}</td>
-                        <td>{{ $trans->pelanggan->nama_pelanggan }}</td>
+                        <td>{{ $trans->pelanggan?->nama_pelanggan ?? 'Guest' }}</td> <!-- Perbaikan di sini -->
                         <td>{{ $trans->tanggal_transaksi }}</td>
                         <td>Rp {{ number_format($trans->total_biaya, 0, ',', '.') }}</td>
                         <td class="action-icons">
-                            <a href="/transaksi-penjualan/{{ $trans->id_transaksi_penjualan }}"><i
-                                    class="fas fa-eye"></i></a>
+                            <a href="{{ route('transaksi-penjualan.show', $trans->id_transaksi_penjualan) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
                             <a href="/transaksi-penjualan/{{ $trans->id_transaksi_penjualan }}/delete"><i
                                     class="fas fa-trash-alt"></i></a>
                         </td>

@@ -130,15 +130,16 @@ Route::prefix('transaksi-penjualan')->name('transaksi-penjualan.')->group(functi
     // Menyimpan transaksi penjualan baru
     Route::post('/store', [TransaksiPenjualanController::class, 'store'])->name('store');
 
-     // Menambahkan item ke keranjang
-     Route::post('/add-to-cart', [TransaksiPenjualanController::class, 'addToCart'])->name('addToCart');
+    // Menambahkan item ke keranjang
+    Route::post('/add-to-cart', [TransaksiPenjualanController::class, 'addToCart'])->name('addToCart');
 
-     // Menghapus item dari keranjang
-     Route::get('/remove-from-cart/{id_menu}', [TransaksiPenjualanController::class, 'removeFromCart'])->name('removeFromCart');
+    // Menghapus item dari keranjang
+    Route::get('/remove-from-cart/{id_menu}', [TransaksiPenjualanController::class, 'removeFromCart'])->name('removeFromCart');
+    Route::get('/{id_transaksi_penjualan}/show', [TransaksiPenjualanController::class, 'show'])->name('show');
 });
 
-Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan_pengeluaran.index');
-Route::get('/laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::class, 'exportPdf'])->name('laporan_pengeluaran.exportPDF');
-
+Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan-pengeluaran.index');
+// Route::get('/laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::class, 'exportPdf'])->name('laporan_pengeluaran.exportPDF');
+Route::get('/laporan-pengeluaran/export', [LaporanPengeluaranController::class, 'export'])->name('laporan-pengeluaran.export');
 // Auth routes
 require __DIR__ . '/auth.php';

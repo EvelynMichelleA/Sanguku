@@ -170,13 +170,10 @@ class TransaksiPenjualanController extends Controller
     //     }
     // }
 
-    // public function show($id_transaksi_penjualan)
-    // {
-    //     // Fetch the transaction along with related customer and user details
-    //     $transaction = TransaksiPenjualan::with('pelanggan', 'user')->findOrFail($id_transaksi_penjualan);
-
-    //     // Pass the transaction data to the view
-    //     return view('transaksipenjualan.show', compact('transaction'));
-    // }
+    public function show($id_transaksi_penjualan)
+{
+    $transaksi = TransaksiPenjualan::with(['user', 'pelanggan'])->findOrFail($id_transaksi_penjualan);
+    return view('transaksi_penjualan.show', compact('transaksi'));
+}
     
 }

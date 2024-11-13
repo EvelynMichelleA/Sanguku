@@ -3,7 +3,9 @@
 @section('content')
 <div class="container">
     <h1>Laporan Pengeluaran</h1>
-    <form method="GET" action="{{ route('laporan_pengeluaran.index') }}">
+
+    <!-- Form Filter -->
+    <form method="GET" action="{{ route('laporan-pengeluaran.index') }}">
         <div class="row mb-3">
             <div class="col-md-4">
                 <label for="start_date" class="form-label">Tanggal Mulai</label>
@@ -17,10 +19,9 @@
                 <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </div>
-    </form>    
+    </form>
 
-    <a href="{{ route('laporan_pengeluaran.exportPDF') }}" class="btn btn-dark mb-3">Export PDF</a>
-
+    <!-- Data Table -->
     <div id="pengeluaranTable">
         <table class="table table-bordered">
             <thead>
@@ -39,7 +40,7 @@
                     <td>{{ $item->user->name ?? 'Tidak Ada Data' }}</td>
                     <td>{{ $item->nama_pengeluaran }}</td>
                     <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
-                    <td>Rp{{ number_format($item->total, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->total, 0, ',', '.') }}</td>
                 </tr>
                 @empty
                 <tr>
@@ -48,21 +49,13 @@
                 @endforelse
             </tbody>
         </table>
-        
     </div>
+
+    <!-- Export Form -->
+    <form method="GET" action="{{ route('laporan-pengeluaran.export') }}">
+        <input type="hidden" name="start_date" value="{{ request()->query('start_date') }}">
+        <input type="hidden" name="end_date" value="{{ request()->query('end_date') }}">
+        <button type="submit" class="btn btn-success mt-3">Export</button>
+    </form>
 </div>
-
-<script>
-    function filterData() {
-        const startDate = document.getElementById('start_date').value;
-        const endDate = document.getElementById('end_date').value;
-
-        if (startDate && endDate) {
-            const filterUrl = `{{ url('/laporan-pengeluaran/filter') }}/${startDate}/${endDate}`;
-            window.location.href = filterUrl;
-        } else {
-            alert('Mohon isi tanggal mulai dan akhir.');
-        }
-    }
-</script>
 @endsection

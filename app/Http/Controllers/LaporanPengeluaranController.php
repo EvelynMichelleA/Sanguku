@@ -6,6 +6,8 @@ use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 use Barryvdh\Snappy\Facades\SnappyPdf;
 use Carbon\Carbon;
+use App\Models\TransaksiPengeluaran;
+use Illuminate\Support\Facades\View;
 
 class LaporanPengeluaranController extends Controller
 {
@@ -36,14 +38,26 @@ class LaporanPengeluaranController extends Controller
         return view('laporan_pengeluaran.index', compact('pengeluaran'));
     }
 
-    public function exportPdf()
+    public function export(Request $request)
     {
-        $pengeluaran = Pengeluaran::all(); // Ambil data dari database
+        // Ambil filter tanggal dari request
+        $start_date = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $end_date = $request->input('end_date', now()->format('Y-m-d'));
 
-        $pdf = SnappyPdf::loadView('laporan_pengeluaran.exportPDF', compact('pengeluaran'))
-            ->setPaper('a4')
-            ->setOption('orientation', 'landscape');
+        // Ambil data berdasarkan filter tanggal
+        $pengeluaran = Pengeluaran::whereBetween('tanggal_pengeluaran', [$start_date, $end_date])->get();
 
-        return $pdf->download('laporan_pengeluaran.pdf');
+        // Generate HTML laporan
+        $html = View::make('laporan_pengeluaran.export', [
+            'pengeluaran' => $pengeluaran,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'totalPengeluaran' => $pengeluaran->sum('total_pengeluaran'),
+        ])->render();
+
+        // Cetak ke browser (tanpa library tambahan)
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment;filename="laporan_pengeluaran.xls"');
     }
 }
