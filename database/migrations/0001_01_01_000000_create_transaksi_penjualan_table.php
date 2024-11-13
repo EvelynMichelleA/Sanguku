@@ -15,6 +15,8 @@ return new class extends Migration
             $table->decimal('total_biaya', 15, 2);
             $table->timestamp('tanggal_transaksi')->useCurrent();
             $table->string('metode_pembayaran');
+            $table->decimal('jumlah_uang', 15, 2);
+            $table->decimal('kembalian', 15, 2);
             $table->timestamps();
 
             // Foreign key constraints

@@ -4,63 +4,70 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\Models\TransaksiPenjualan;
-use App\Models\DetailTransaksiPenjualan;
-use App\Models\Menu;
-use App\Models\Pelanggan;
-use App\Models\User;
 
 class TransaksiPenjualanSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        // Retrieve existing users and customers
-        $users = User::all();
-        $pelanggan = Pelanggan::all();
-        $menuItems = Menu::all();
-
-        // Seed 10 transaksi penjualan
-        for ($i = 0; $i < 10; $i++) {
-            $user = $users->random();
-            $customer = $pelanggan->random();
-            $totalBiaya = 0;
-
-            // Create transaksi penjualan
-            $transaksiPenjualan = TransaksiPenjualan::create([
-                'id_pelanggan' => $customer->id_pelanggan,
-                'id_user' => $user->id,
-                'total_biaya' => 0, // Will be updated after adding details
+        // Seed data untuk transaksi_penjualan
+        DB::table('transaksi_penjualan')->insert([
+            [
+                'id_pelanggan' => 1,
+                'id_user' => 1,
+                'total_biaya' => 150000.00,
                 'tanggal_transaksi' => now(),
                 'metode_pembayaran' => 'Cash',
-            ]);
+                'jumlah_uang' => 200000.00,
+                'kembalian' => 50000.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id_pelanggan' => 2,
+                'id_user' => 2,
+                'total_biaya' => 100000.00,
+                'tanggal_transaksi' => now(),
+                'metode_pembayaran' => 'Credit Card',
+                'jumlah_uang' => 100000.00,
+                'kembalian' => 0.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
 
-            // Add 1-3 menu items to each transaksi
-            $detailCount = rand(1, 3);
-            for ($j = 0; $j < $detailCount; $j++) {
-                $menu = $menuItems->random();
-                $jumlah = rand(1, 5);
-                $subtotal = $menu->harga * $jumlah;
-                $totalBiaya += $subtotal;
-
-                DetailTransaksiPenjualan::create([
-                    'id_transaksi_penjualan' => $transaksiPenjualan->id_transaksi_penjualan,
-                    'id_menu' => $menu->id_menu,
-                    'nama_menu' => $menu->nama_menu,
-                    'jumlah' => $jumlah,
-                    'harga_satuan' => $menu->harga,
-                    'subtotal' => $subtotal,
-                ]);
-            }
-
-            // Update total biaya after adding details
-            $transaksiPenjualan->total_biaya = $totalBiaya;
-            $transaksiPenjualan->save();
-        }
+        // Seed data untuk detail_transaksi_penjualan
+        DB::table('detail_transaksi_penjualan')->insert([
+            [
+                'id_transaksi_penjualan' => 1,
+                'id_menu' => 1,
+                'nama_menu' => 'Nasi Goreng',
+                'jumlah' => 2,
+                'harga_satuan' => 25000.00,
+                'subtotal' => 50000.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id_transaksi_penjualan' => 1,
+                'id_menu' => 2,
+                'nama_menu' => 'Es Teh',
+                'jumlah' => 4,
+                'harga_satuan' => 10000.00,
+                'subtotal' => 40000.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id_transaksi_penjualan' => 2,
+                'id_menu' => 3,
+                'nama_menu' => 'Mie Ayam',
+                'jumlah' => 3,
+                'harga_satuan' => 30000.00,
+                'subtotal' => 90000.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }
+

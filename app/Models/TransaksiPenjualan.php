@@ -16,7 +16,9 @@ class TransaksiPenjualan extends Model
         'id_user',
         'total_biaya',
         'tanggal_transaksi',
-        'metode_pembayaran'
+        'metode_pembayaran',
+        'jumlah_uang',
+        'kembalian',
     ];
 
     // Relasi ke pelanggan

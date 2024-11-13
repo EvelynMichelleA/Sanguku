@@ -49,63 +49,134 @@ class TransaksiPenjualanController extends Controller
 
     public function create()
     {
-        $menuItems = Menu::all();
-        $pelangganItems = Pelanggan::all();
-        $cart = session()->get('cart', []);
-        return view('transaksi_penjualan.create', compact('menuItems', 'pelangganItems', 'cart'));
+        $menu = Menu::all();
+        $pelanggan = Pelanggan::all();
+        $cart = session()->get('cart', []); // Ambil keranjang dari session
+        return view('transaksi_penjualan.create', compact('menu', 'pelanggan', 'cart'));
     }
 
-    public function store(Request $request)
+    /**
+     * Menambahkan menu ke keranjang
+     */
+    public function addToCart(Request $request)
     {
-        $request->validate([
-            'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
-            'menu' => 'required|array|min:1',
-            'menu.*' => 'required|exists:menu,id_menu',
-            'jumlah' => 'required|array|min:1',
-            'jumlah.*' => 'required|integer|min:1',
-        ]);
+        $menu = Menu::findOrFail($request->id_menu);
 
-        $totalBiaya = 0;
+        // Ambil keranjang dari session
+        $cart = session()->get('cart', []);
 
-        DB::beginTransaction();
-        try {
-            // Create transaksi penjualan
-            $transaksiPenjualan = new TransaksiPenjualan();
-            $transaksiPenjualan->id_pelanggan = $request->input('id_pelanggan'); // id_pelanggan bisa null
-            $transaksiPenjualan->id_user = Auth::user()->id;
-            $transaksiPenjualan->tanggal_transaksi = now();
-            $transaksiPenjualan->metode_pembayaran = $request->input('metode_pembayaran', 'Cash');
-            $transaksiPenjualan->total_biaya = 0; // Will be updated later
-            $transaksiPenjualan->save();
-
-            // Add details for each menu item
-            foreach ($request->menu as $index => $menuId) {
-                $menu = Menu::findOrFail($menuId);
-                $jumlah = $request->jumlah[$index];
-                $subtotal = $menu->harga * $jumlah;
-                $totalBiaya += $subtotal;
-
-                $detail = new DetailTransaksiPenjualan();
-                $detail->id_transaksi_penjualan = $transaksiPenjualan->id_transaksi_penjualan;
-                $detail->id_menu = $menu->id_menu;
-                $detail->nama_menu = $menu->nama_menu;
-                $detail->jumlah = $jumlah;
-                $detail->harga_satuan = $menu->harga;
-                $detail->subtotal = $subtotal;
-                $detail->save();
-            }
-
-            // Update total biaya transaksi
-            $transaksiPenjualan->total_biaya = $totalBiaya;
-            $transaksiPenjualan->save();
-
-            DB::commit();
-
-            return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil dibuat.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal membuat transaksi: ' . $e->getMessage());
+        // Tambahkan item ke keranjang
+        if (isset($cart[$menu->id_menu])) {
+            $cart[$menu->id_menu]['jumlah'] += $request->jumlah;
+            $cart[$menu->id_menu]['subtotal'] += $menu->harga * $request->jumlah;
+        } else {
+            $cart[$menu->id_menu] = [
+                'id_menu' => $menu->id_menu,
+                'nama_menu' => $menu->nama_menu,
+                'harga' => $menu->harga,
+                'jumlah' => $request->jumlah,
+                'subtotal' => $menu->harga * $request->jumlah,
+            ];
         }
+
+        session()->put('cart', $cart); // Simpan ke session
+
+        return redirect()->route('transaksi-penjualan.create')->with('success', 'Menu berhasil ditambahkan ke keranjang!');
     }
+
+    /**
+     * Menghapus menu dari keranjang
+     */
+    public function removeFromCart($id_menu)
+    {
+        $cart = session()->get('cart', []);
+        if (isset($cart[$id_menu])) {
+            unset($cart[$id_menu]);
+            session()->put('cart', $cart); // Perbarui keranjang
+        }
+
+        return redirect()->route('transaksi-penjualan.create')->with('success', 'Menu berhasil dihapus dari keranjang.');
+    }
+
+    /**
+     * Menyimpan transaksi
+     */
+    public function store(Request $request)
+{
+    $cart = session()->get('cart', []);
+    if (empty($cart)) {
+        return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
+    }
+
+    $validatedData = $request->validate([
+        'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
+        'tanggal_transaksi' => 'required|date',
+    ]);
+
+    // Hitung total harga
+    $totalHarga = array_sum(array_column($cart, 'subtotal'));
+
+    if ($request->jumlah_uang < $totalHarga) {
+        return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
+    }
+
+    $kembalian = $request->jumlah_uang - $totalHarga;
+
+    // Simpan transaksi utama
+    $transaksi = TransaksiPenjualan::create([
+        'id_pelanggan' => $validatedData['id_pelanggan'],
+        'tanggal_penjualan' => $validatedData['tanggal_transaksi'],
+        'total_biaya' => $totalHarga,
+        'jumlah_uang' => $request->jumlah_uang,
+        'kembalian' => $kembalian,
+        'id_user' => Auth::id(),
+        'metode_pembayaran' => $request->metode_pembayaran, 
+    ]);
+
+    // Simpan detail transaksi
+    foreach ($cart as $item) {
+        $transaksi->details()->create([
+            'id_menu' => $item['id_menu'],
+            'nama_menu' => $item['nama_menu'],
+            'jumlah' => $item['jumlah'],
+            'harga_satuan' => $item['harga'],
+            'subtotal' => $item['subtotal'],
+        ]);
+    }
+
+    session()->forget('cart'); // Kosongkan keranjang
+
+    return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
+}
+
+    
+    
+    // public function print($id_transaksi_penjualan)
+    // {
+    //     $transaction = TransaksiPenjualan::with('pelanggan', 'user')->findOrFail($id_transaksi_penjualan);
+
+    //     // Optional: Generate PDF or return a printable view
+    //     return view('transaksipenjualan.print', compact('transaction'));
+    // }
+    // public function destroy($id_transaksi_penjualan)
+    // {
+    //     $transaksipenjualan = TransaksiPenjualan::findOrFail($id_transaksi_penjualan);
+
+    //     try {
+    //         $transaksipenjualan->delete(); // Menghapus data dengan soft delete (jika diaktifkan)
+    //         return redirect()->route('transakasipenjualan.index')->with('success', 'Data transaksi penjualan berhasil dihapus.');
+    //     } catch (\Exception $e) {
+    //         return redirect()->route('transaksipenjualan.index')->withErrors('Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+    //     }
+    // }
+
+    // public function show($id_transaksi_penjualan)
+    // {
+    //     // Fetch the transaction along with related customer and user details
+    //     $transaction = TransaksiPenjualan::with('pelanggan', 'user')->findOrFail($id_transaksi_penjualan);
+
+    //     // Pass the transaction data to the view
+    //     return view('transaksipenjualan.show', compact('transaction'));
+    // }
     
 }
