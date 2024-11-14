@@ -136,6 +136,8 @@ Route::prefix('transaksi-penjualan')->name('transaksi-penjualan.')->group(functi
     // Menghapus item dari keranjang
     Route::get('/remove-from-cart/{id_menu}', [TransaksiPenjualanController::class, 'removeFromCart'])->name('removeFromCart');
     Route::get('/{id_transaksi_penjualan}/show', [TransaksiPenjualanController::class, 'show'])->name('show');
+    // Route::get('/{id_transaksi_penjualan}/cetak', [TransaksiPenjualanController::class, 'cetak'])->name('cetak');
+
 });
 
 Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan-pengeluaran.index');

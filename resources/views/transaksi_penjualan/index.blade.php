@@ -209,8 +209,9 @@
                         <td class="action-icons">
                             <a href="{{ route('transaksi-penjualan.show', $trans->id_transaksi_penjualan) }}" class="btn btn-sm btn-info">
                                 <i class="fas fa-eye"></i>
-                            <a href="/transaksi-penjualan/{{ $trans->id_transaksi_penjualan }}/delete"><i
-                                    class="fas fa-trash-alt"></i></a>
+                                {{-- <a href="{{ route('transaksi-penjualan.cetak', $trans->id_transaksi_penjualan) }}">
+                                    <i class="fas fa-print"></i>
+                                </a> --}}
                         </td>
                     </tr>
                     @empty

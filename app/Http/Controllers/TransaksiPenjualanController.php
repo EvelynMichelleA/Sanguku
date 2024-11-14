@@ -149,31 +149,28 @@ class TransaksiPenjualanController extends Controller
     return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
 }
 
-    
-    
-    // public function print($id_transaksi_penjualan)
-    // {
-    //     $transaction = TransaksiPenjualan::with('pelanggan', 'user')->findOrFail($id_transaksi_penjualan);
-
-    //     // Optional: Generate PDF or return a printable view
-    //     return view('transaksipenjualan.print', compact('transaction'));
-    // }
-    // public function destroy($id_transaksi_penjualan)
-    // {
-    //     $transaksipenjualan = TransaksiPenjualan::findOrFail($id_transaksi_penjualan);
-
-    //     try {
-    //         $transaksipenjualan->delete(); // Menghapus data dengan soft delete (jika diaktifkan)
-    //         return redirect()->route('transakasipenjualan.index')->with('success', 'Data transaksi penjualan berhasil dihapus.');
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('transaksipenjualan.index')->withErrors('Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
-    //     }
-    // }
 
     public function show($id_transaksi_penjualan)
 {
     $transaksi = TransaksiPenjualan::with(['user', 'pelanggan'])->findOrFail($id_transaksi_penjualan);
     return view('transaksi_penjualan.show', compact('transaksi'));
 }
+
+// public function cetak($id)
+// {
+//     // Ambil data transaksi berdasarkan ID
+//     $transaksi = TransaksiPenjualan::with(['details', 'user', 'pelanggan'])->findOrFail($id);
+
+//     // Siapkan data untuk cetak nota
+//     $data = [
+//         'transaksi' => $transaksi,
+//     ];
+
+//     // Gunakan PDF untuk menghasilkan file
+//     $pdf = PDF::loadView('transaksi.cetak-nota', $data);
+
+//     // Unduh atau tampilkan PDF
+//     return $pdf->stream('nota-transaksi-' . $id . '.pdf');
+// }
     
 }
