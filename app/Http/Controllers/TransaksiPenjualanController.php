@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\TransaksiPenjualan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Session;
 use App\Models\DetailTransaksiPenjualan;
 
@@ -102,75 +103,74 @@ class TransaksiPenjualanController extends Controller
      * Menyimpan transaksi
      */
     public function store(Request $request)
-{
-    $cart = session()->get('cart', []);
-    if (empty($cart)) {
-        return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
-    }
+    {
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
+        }
 
-    $validatedData = $request->validate([
-        'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
-        'tanggal_transaksi' => 'required|date',
-    ]);
-
-    // Hitung total harga
-    $totalHarga = array_sum(array_column($cart, 'subtotal'));
-
-    if ($request->jumlah_uang < $totalHarga) {
-        return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
-    }
-
-    $kembalian = $request->jumlah_uang - $totalHarga;
-
-    // Simpan transaksi utama
-    $transaksi = TransaksiPenjualan::create([
-        'id_pelanggan' => $validatedData['id_pelanggan'],
-        'tanggal_penjualan' => $validatedData['tanggal_transaksi'],
-        'total_biaya' => $totalHarga,
-        'jumlah_uang' => $request->jumlah_uang,
-        'kembalian' => $kembalian,
-        'id_user' => Auth::id(),
-        'metode_pembayaran' => $request->metode_pembayaran, 
-    ]);
-
-    // Simpan detail transaksi
-    foreach ($cart as $item) {
-        $transaksi->details()->create([
-            'id_menu' => $item['id_menu'],
-            'nama_menu' => $item['nama_menu'],
-            'jumlah' => $item['jumlah'],
-            'harga_satuan' => $item['harga'],
-            'subtotal' => $item['subtotal'],
+        $validatedData = $request->validate([
+            'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
+            'tanggal_transaksi' => 'required|date',
         ]);
+
+        // Hitung total harga
+        $totalHarga = array_sum(array_column($cart, 'subtotal'));
+
+        if ($request->jumlah_uang < $totalHarga) {
+            return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
+        }
+
+        $kembalian = $request->jumlah_uang - $totalHarga;
+
+        // Simpan transaksi utama
+        $transaksi = TransaksiPenjualan::create([
+            'id_pelanggan' => $validatedData['id_pelanggan'],
+            'tanggal_penjualan' => $validatedData['tanggal_transaksi'],
+            'total_biaya' => $totalHarga,
+            'jumlah_uang' => $request->jumlah_uang,
+            'kembalian' => $kembalian,
+            'id_user' => Auth::id(),
+            'metode_pembayaran' => $request->metode_pembayaran,
+        ]);
+
+        // Simpan detail transaksi
+        foreach ($cart as $item) {
+            $transaksi->details()->create([
+                'id_menu' => $item['id_menu'],
+                'nama_menu' => $item['nama_menu'],
+                'jumlah' => $item['jumlah'],
+                'harga_satuan' => $item['harga'],
+                'subtotal' => $item['subtotal'],
+            ]);
+        }
+
+        session()->forget('cart'); // Kosongkan keranjang
+
+        return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
     }
-
-    session()->forget('cart'); // Kosongkan keranjang
-
-    return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
-}
 
 
     public function show($id_transaksi_penjualan)
-{
-    $transaksi = TransaksiPenjualan::with(['user', 'pelanggan'])->findOrFail($id_transaksi_penjualan);
-    return view('transaksi_penjualan.show', compact('transaksi'));
-}
+    {
+        $transaksi = TransaksiPenjualan::with(['user', 'pelanggan'])->findOrFail($id_transaksi_penjualan);
+        return view('transaksi_penjualan.show', compact('transaksi'));
+    }
 
-// public function cetak($id)
-// {
-//     // Ambil data transaksi berdasarkan ID
-//     $transaksi = TransaksiPenjualan::with(['details', 'user', 'pelanggan'])->findOrFail($id);
+    public function cetak($id)
+    {
+        // Ambil data transaksi berdasarkan ID
+        $transaksi = TransaksiPenjualan::with(['details', 'user', 'pelanggan'])->findOrFail($id);
 
-//     // Siapkan data untuk cetak nota
-//     $data = [
-//         'transaksi' => $transaksi,
-//     ];
+        // Siapkan data untuk cetak nota
+        $data = [
+            'transaksi' => $transaksi,
+        ];
 
-//     // Gunakan PDF untuk menghasilkan file
-//     $pdf = PDF::loadView('transaksi.cetak-nota', $data);
+        // Gunakan PDF untuk menghasilkan file
+        $pdf = Pdf::loadView('transaksi_penjualan.cetaknota', $data);
 
-//     // Unduh atau tampilkan PDF
-//     return $pdf->stream('nota-transaksi-' . $id . '.pdf');
-// }
-    
+        // Unduh atau tampilkan PDF
+        return $pdf->stream('nota-transaksi-' . $id . '.pdf');
+    }
 }
