@@ -141,7 +141,6 @@ Route::prefix('transaksi-penjualan')->name('transaksi-penjualan.')->group(functi
 });
 
 Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan-pengeluaran.index');
-// Route::get('/laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::class, 'exportPdf'])->name('laporan_pengeluaran.exportPDF');
-Route::get('/laporan-pengeluaran/export', [LaporanPengeluaranController::class, 'export'])->name('laporan-pengeluaran.export');
+Route::get('laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::class, 'exportPDF'])->name('laporan-pengeluaran.exportPDF');
 // Auth routes
 require __DIR__ . '/auth.php';
