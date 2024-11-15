@@ -39,7 +39,7 @@ class TransaksiPenjualanController extends Controller
         }
 
         // Ambil data hasil filter
-        $transaksi = $query->paginate(10);
+        $transaksi = $query->paginate(50);
 
         // Ambil semua data pelanggan untuk dropdown
         $pelanggan = Pelanggan::all();

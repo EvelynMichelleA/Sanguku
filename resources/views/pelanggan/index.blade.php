@@ -142,7 +142,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID Pelanggan</th>
+                    <th>No</th>
                     <th>Nama Pelanggan</th>
                     <th>Nomor Telepon</th>
                     <th>Email Pelanggan</th>
@@ -151,9 +151,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($pelanggan as $customer)
+                @forelse ($pelanggan as $index => $customer)
                     <tr>
-                        <td>{{ $customer->id_pelanggan }}</td>
+                        <td>{{ $index + 1 }}</td>
                         <td>{{ $customer->nama_pelanggan }}</td>
                         <td>{{ $customer->nomor_telepon }}</td>
                         <td>{{ $customer->email_pelanggan }}</td>

@@ -149,7 +149,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>No</th>
                     <th>Username</th>
                     <th>Email</th>
                     <th>Nama Pengguna</th>
@@ -158,9 +158,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($users as $user)
+                @forelse ($users as $index => $user)
                     <tr>
-                        <td>{{ $user->id }}</td>
+                        <td>{{ $index + 1 }}</td>
                         <td>{{ $user->username }}</td>
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->name }}</td>

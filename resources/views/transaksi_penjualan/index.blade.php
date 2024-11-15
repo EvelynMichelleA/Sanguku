@@ -207,38 +207,37 @@
                         <td>{{ $trans->tanggal_transaksi }}</td>
                         <td>Rp {{ number_format($trans->total_biaya, 0, ',', '.') }}</td>
                         <td class="action-icons">
-                            <a href="{{ route('transaksi-penjualan.show', $trans->id_transaksi_penjualan) }}" class="btn btn-sm btn-info">
+                            <a href="{{ route('transaksi-penjualan.show', $trans->id_transaksi_penjualan) }}"
+                                class="btn btn-sm btn-info">
                                 <i class="fas fa-eye"></i>
                                 <a href="{{ route('transaksi-penjualan.cetak', $trans->id_transaksi_penjualan) }}">
                                     <i class="fas fa-print"></i>
                                 </a>
                         </td>
                     </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6"
-                                style="padding: 20px; text-align: center; color: #1e3a8a; font-size: 16px;">
-                                Tidak ada data transaksi penjualan ditemukan.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="6" style="padding: 20px; text-align: center; color: #1e3a8a; font-size: 16px;">
+                            Tidak ada data transaksi penjualan ditemukan.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // JavaScript untuk membuka dan menutup sidebar filter
+        const filterButton = document.getElementById('filter-button');
+        const filterSidebar = document.getElementById('filter-sidebar');
 
-        <script>
-            // JavaScript untuk membuka dan menutup sidebar filter
-            const filterButton = document.getElementById('filter-button');
-            const filterSidebar = document.getElementById('filter-sidebar');
+        filterButton.addEventListener('click', () => {
+            if (filterSidebar.style.right === '0px') {
+                filterSidebar.style.right = '-300px';
+            } else {
+                filterSidebar.style.right = '0px';
+            }
+        });
+    </script>
+</body>
 
-            filterButton.addEventListener('click', () => {
-                if (filterSidebar.style.right === '0px') {
-                    filterSidebar.style.right = '-300px';
-                } else {
-                    filterSidebar.style.right = '0px';
-                }
-            });
-        </script>
-    </body>
-
-    </html>
+</html>
