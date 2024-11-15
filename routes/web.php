@@ -138,8 +138,6 @@ Route::prefix('transaksi-penjualan')->name('transaksi-penjualan.')->group(functi
     Route::get('/{id_transaksi_penjualan}/show', [TransaksiPenjualanController::class, 'show'])->name('show');
     Route::get('/{id_transaksi_penjualan}/cetak', [TransaksiPenjualanController::class, 'cetak'])->name('cetak');
     Route::post('/send-email/{id}', [TransaksiPenjualanController::class, 'sendEmail'])->name('sendEmail');
-
-
 });
 
 Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan-pengeluaran.index');
@@ -147,5 +145,13 @@ Route::get('laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::clas
 
 Route::get('/laporan-transaksi', [LaporanTransaksiPenjualanController::class, 'index'])->name('laporan-transaksi.index');
 Route::get('laporan-transaksi/export-pdf', [LaporanTransaksiPenjualanController::class, 'exportPDF'])->name('laporan-transaksi.exportPDF');
+
+// Route::get('test', function(){
+// \Illuminate\Support\Facades\Mail::to('michelleaurelia1544@gmail.com')->send(
+//     new \App\Mail\InfoPoin ($pelanggan, )
+// );
+// return 'Done';
+
+// });
 // Auth routes
 require __DIR__ . '/auth.php';

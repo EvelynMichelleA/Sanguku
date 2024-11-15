@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use App\Mail\InfoPoin;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -59,93 +60,94 @@ class TransaksiPenjualanController extends Controller
     }
 
     public function store(Request $request)
-{
-    // Get the cart from session
-    $cart = session()->get('cart', []);
-    if (empty($cart)) {
-        return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
-    }
+    {
+        // Get the cart from session
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
+        }
 
-    // Calculate the subtotal (total price before discount)
-    $totalHargaSebelumDiskon = array_sum(array_column($cart, 'subtotal'));  // Sum the subtotals of the cart
-    $totalHargaAsli = $totalHargaSebelumDiskon;  // Store original subtotal before any discount
-    $jumlahPoinDigunakan = 0;
+        // Calculate the subtotal (total price before discount)
+        $totalHargaSebelumDiskon = array_sum(array_column($cart, 'subtotal'));  // Sum the subtotals of the cart
+        $totalHargaAsli = $totalHargaSebelumDiskon;  // Store original subtotal before any discount
+        $jumlahPoinDigunakan = 0;
 
-    // Apply discount if points are used
-    if ($request->gunakan_poin && $request->id_pelanggan) {
-        $pelanggan = Pelanggan::find($request->id_pelanggan);
+        // Apply discount if points are used
+        if ($request->gunakan_poin && $request->id_pelanggan) {
+            $pelanggan = Pelanggan::find($request->id_pelanggan);
 
-        if ($pelanggan) {
-            $jumlahPoin = $pelanggan->jumlah_poin;
-            $diskon = $jumlahPoin;
-            $jumlahPoinDigunakan = $jumlahPoin;
+            if ($pelanggan) {
+                $jumlahPoin = $pelanggan->jumlah_poin;
+                $diskon = $jumlahPoin;
+                $jumlahPoinDigunakan = $jumlahPoin;
 
-            // If discount is more than the total price, adjust the discount
-            if ($diskon > $totalHargaSebelumDiskon) {
-                $jumlahPoinDigunakan = floor($totalHargaSebelumDiskon); // Use points equivalent to the total
-                $diskon = $jumlahPoinDigunakan;
+                // If discount is more than the total price, adjust the discount
+                if ($diskon > $totalHargaSebelumDiskon) {
+                    $jumlahPoinDigunakan = floor($totalHargaSebelumDiskon); // Use points equivalent to the total
+                    $diskon = $jumlahPoinDigunakan;
+                }
+
+                // Subtract the discount from the total price
+                $totalHargaSebelumDiskon -= $diskon;
+
+                // Deduct the used points from the customer
+                $pelanggan->decrement('jumlah_poin', $jumlahPoinDigunakan);
             }
-
-            // Subtract the discount from the total price
-            $totalHargaSebelumDiskon -= $diskon;
-
-            // Deduct the used points from the customer
-            $pelanggan->decrement('jumlah_poin', $jumlahPoinDigunakan);
         }
-    }
 
-    // Calculate the total cost after discount
-    $totalBiayaSetelahDiskon = max(0, $totalHargaSebelumDiskon);
+        // Calculate the total cost after discount
+        $totalBiayaSetelahDiskon = max(0, $totalHargaSebelumDiskon);
 
-    // Validate the amount provided by the user
-    if ($request->jumlah_uang < $totalBiayaSetelahDiskon) {
-        return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
-    }
+        // Validate the amount provided by the user
+        if ($request->jumlah_uang < $totalBiayaSetelahDiskon) {
+            return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
+        }
 
-    $kembalian = $request->jumlah_uang - $totalBiayaSetelahDiskon;
+        $kembalian = $request->jumlah_uang - $totalBiayaSetelahDiskon;
 
-    $diskon = $request->input('diskon', 0);
-    // Ensure the values for subtotal and diskon are not missing
-    $subtotal = $totalHargaAsli ?: 0; // Default to 0 if not set
-    $diskon = $diskon ?: 0; // Default to 0 if not set
-   
-    // Save the main transaction with subtotal and discount
-    $transaksi = TransaksiPenjualan::create([
-        'id_pelanggan' => $request->id_pelanggan,
-        'tanggal_penjualan' => $request->tanggal_transaksi,
-        'total_biaya' => $totalBiayaSetelahDiskon,
-        'diskon' => $jumlahPoinDigunakan, // Save the discount (points used)
-        'subtotal' => $totalHargaSebelumDiskon,  // Save the subtotal before discount
-        'jumlah_uang' => $request->jumlah_uang,
-        'kembalian' => $kembalian,
-        'id_user' => Auth::id(),
-        'metode_pembayaran' => $request->metode_pembayaran,
-    ]);
+        $diskon = $request->input('diskon', 0);
+        // Ensure the values for subtotal and diskon are not missing
+        $subtotal = $totalHargaAsli ?: 0; // Default to 0 if not set
+        $diskon = $diskon ?: 0; // Default to 0 if not set
 
-    // Save the transaction details (items in the cart)
-    foreach ($cart as $item) {
-        $transaksi->details()->create([
-            'id_menu' => $item['id_menu'],
-            'nama_menu' => $item['nama_menu'],
-            'jumlah' => $item['jumlah'],
-            'harga_satuan' => $item['harga'],
-            'subtotal' => $item['subtotal'],
+        // Save the main transaction with subtotal and discount
+        $transaksi = TransaksiPenjualan::create([
+            'id_pelanggan' => $request->id_pelanggan,
+            'tanggal_penjualan' => $request->tanggal_transaksi,
+            'total_biaya' => $totalBiayaSetelahDiskon,
+            'diskon' => $jumlahPoinDigunakan, // Save the discount (points used)
+            'subtotal' => $totalHargaSebelumDiskon,  // Save the subtotal before discount
+            'jumlah_uang' => $request->jumlah_uang,
+            'kembalian' => $kembalian,
+            'id_user' => Auth::id(),
+            'metode_pembayaran' => $request->metode_pembayaran,
         ]);
-    }
 
-    // Add points to the customer (5% of the total price before discount)
-    if ($request->id_pelanggan) {
-        $pelanggan = Pelanggan::find($request->id_pelanggan);
-        if ($pelanggan) {
-            $poinBaru = floor($totalHargaAsli * 0.05); // 5% of the total price before discount
-            $pelanggan->increment('jumlah_poin', $poinBaru);
+        // Save the transaction details (items in the cart)
+        foreach ($cart as $item) {
+            $transaksi->details()->create([
+                'id_menu' => $item['id_menu'],
+                'nama_menu' => $item['nama_menu'],
+                'jumlah' => $item['jumlah'],
+                'harga_satuan' => $item['harga'],
+                'subtotal' => $item['subtotal'],
+            ]);
         }
+
+        // Add points to the customer (5% of the total price before discount)
+        if ($request->id_pelanggan) {
+            $pelanggan = Pelanggan::find($request->id_pelanggan);
+            if ($pelanggan) {
+                $poinBaru = floor($totalHargaAsli * 0.05); // 5% of the total price before discount
+                $pelanggan->increment('jumlah_poin', $poinBaru);
+            }
+        }
+
+        session()->forget('cart'); // Clear the cart after the transaction is saved
+        Mail::to($pelanggan->email_pelanggan)->send(new InfoPoin($pelanggan, $diskon, $poinBaru));
+        return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
+        
     }
-
-    session()->forget('cart'); // Clear the cart after the transaction is saved
-
-    return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
-}
 
     /**
      * Menambahkan menu ke keranjang
@@ -213,31 +215,31 @@ class TransaksiPenjualanController extends Controller
         return $pdf->stream('nota-transaksi-' . $id . '.pdf');
     }
 
-    public function sendEmail($id)
-{
-    // Ambil data transaksi berdasarkan ID
-    $transaksi = TransaksiPenjualan::with('pelanggan')->findOrFail($id);
+    //     public function sendEmail($id)
+    // {
+    //     // Ambil data transaksi berdasarkan ID
+    //     $transaksi = TransaksiPenjualan::with('pelanggan')->findOrFail($id);
 
-    // Pastikan transaksi memiliki pelanggan
-    if ($transaksi->id_pelanggan && $transaksi->pelanggan) {
-        $pelanggan = $transaksi->pelanggan;
+    //     // Pastikan transaksi memiliki pelanggan
+    //     if ($transaksi->id_pelanggan && $transaksi->pelanggan) {
+    //         $pelanggan = $transaksi->pelanggan;
 
-        // Data poin pelanggan
-        $poinSebelum = $pelanggan->jumlah_poin - floor($transaksi->total_biaya * 0.05);
-        $poinDihasilkan = floor($transaksi->total_biaya * 0.05);
-        $poinDigunakan = $transaksi->diskon;
+    //         // Data poin pelanggan
+    //         $poinSebelum = $pelanggan->jumlah_poin - floor($transaksi->total_biaya * 0.05);
+    //         $poinDihasilkan = floor($transaksi->total_biaya * 0.05);
+    //         $poinDigunakan = $transaksi->diskon;
 
-        // Periksa apakah email pelanggan tersedia
-        if (!empty($pelanggan->email)) {
-            // Kirim email menggunakan Mailable
-            Mail::to($pelanggan->email)->send(new PoinPelangganEmail($pelanggan, $poinSebelum, $poinDigunakan, $poinDihasilkan));
+    //         // Periksa apakah email pelanggan tersedia
+    //         if (!empty($pelanggan->email)) {
+    //             // Kirim email menggunakan Mailable
+    //             Mail::to($pelanggan->email)->send(new PoinPelangganEmail($pelanggan, $poinSebelum, $poinDigunakan, $poinDihasilkan));
 
-            return redirect()->back()->with('success', 'Email berhasil dikirim.');
-        } else {
-            return redirect()->back()->withErrors('Pelanggan tidak memiliki email.');
-        }
-    } else {
-        return redirect()->back()->withErrors('Transaksi tidak memiliki data pelanggan.');
-    }
-}
+    //             return redirect()->back()->with('success', 'Email berhasil dikirim.');
+    //         } else {
+    //             return redirect()->back()->withErrors('Pelanggan tidak memiliki email.');
+    //         }
+    //     } else {
+    //         return redirect()->back()->withErrors('Transaksi tidak memiliki data pelanggan.');
+    //     }
+    // }
 }
