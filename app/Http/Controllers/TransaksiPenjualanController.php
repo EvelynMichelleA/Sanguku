@@ -57,81 +57,95 @@ class TransaksiPenjualanController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
-        }
-
-        $validatedData = $request->validate([
-            'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
-            'tanggal_transaksi' => 'required|date',
-            'metode_pembayaran' => 'required',
-            'jumlah_uang' => 'required|numeric|min:0',
-            'gunakan_poin' => 'nullable|boolean',
-        ]);
-
-        // Hitung total harga
-        $totalHarga = array_sum(array_column($cart, 'subtotal'));
-        $diskon = 0;
-        $jumlahPoinDigunakan = 0;
-
-        if ($request->gunakan_poin && $request->id_pelanggan) {
-            $pelanggan = Pelanggan::find($request->id_pelanggan);
-
-            if ($pelanggan) {
-                $jumlahPoin = $pelanggan->jumlah_poin;
-                $diskon = $jumlahPoin; // 1 poin = Rp 100
-                $jumlahPoinDigunakan = $jumlahPoin;
-
-                // Jika diskon lebih besar dari total biaya, sesuaikan diskon
-                if ($diskon > $totalHarga) {
-                    $jumlahPoinDigunakan = floor($totalHarga); // Hitung poin yang digunakan
-                    $diskon = $jumlahPoinDigunakan;
-                }
-
-                // Kurangi total harga dengan diskon
-                $totalHarga -= $diskon;
-
-                // Kurangi poin pelanggan
-                $pelanggan->decrement('jumlah_poin', $jumlahPoinDigunakan);
-            }
-        }
-
-        if ($request->jumlah_uang < $totalHarga) {
-            return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
-        }
-
-        $kembalian = $request->jumlah_uang - $totalHarga;
-
-        // Simpan transaksi utama
-        $transaksi = TransaksiPenjualan::create([
-            'id_pelanggan' => $request->id_pelanggan,
-            'tanggal_penjualan' => $request->tanggal_transaksi,
-            'total_biaya' => $totalHarga,
-            'diskon' => $diskon,
-            'jumlah_uang' => $request->jumlah_uang,
-            'kembalian' => $kembalian,
-            'id_user' => Auth::id(),
-            'metode_pembayaran' => $request->metode_pembayaran,
-        ]);
-
-        // Simpan detail transaksi
-        foreach ($cart as $item) {
-            $transaksi->details()->create([
-                'id_menu' => $item['id_menu'],
-                'nama_menu' => $item['nama_menu'],
-                'jumlah' => $item['jumlah'],
-                'harga_satuan' => $item['harga'],
-                'subtotal' => $item['subtotal'],
-            ]);
-        }
-
-        session()->forget('cart'); // Kosongkan keranjang
-
-        return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
+{
+    $cart = session()->get('cart', []);
+    if (empty($cart)) {
+        return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
     }
 
+    $validatedData = $request->validate([
+        'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
+        'tanggal_transaksi' => 'required|date',
+        'metode_pembayaran' => 'required',
+        'jumlah_uang' => 'required|numeric|min:0',
+        'gunakan_poin' => 'nullable|boolean',
+    ]);
+
+    // Hitung total harga sebelum diskon
+    $totalHargaSebelumDiskon = array_sum(array_column($cart, 'subtotal'));
+    $totalHargaAsli = $totalHargaSebelumDiskon; // Simpan nilai asli sebelum diskon diterapkan
+    $diskon = 0;
+    $jumlahPoinDigunakan = 0;
+
+    if ($request->gunakan_poin && $request->id_pelanggan) {
+        $pelanggan = Pelanggan::find($request->id_pelanggan);
+
+        if ($pelanggan) {
+            $jumlahPoin = $pelanggan->jumlah_poin;
+            $diskon = $jumlahPoin;
+            $jumlahPoinDigunakan = $jumlahPoin;
+
+            // Jika diskon lebih besar dari total biaya, sesuaikan diskon
+            if ($diskon > $totalHargaSebelumDiskon) {
+                $jumlahPoinDigunakan = floor($totalHargaSebelumDiskon); // Hitung poin yang digunakan
+                $diskon = $jumlahPoinDigunakan;
+            }
+
+            // Kurangi total harga dengan diskon
+            $totalHargaSebelumDiskon -= $diskon;
+
+            // Kurangi poin pelanggan
+            $pelanggan->decrement('jumlah_poin', $jumlahPoinDigunakan);
+        }
+    }
+
+    // Hitung total biaya setelah diskon
+    $totalBiayaSetelahDiskon = max(0, $totalHargaSebelumDiskon);
+
+    if ($request->jumlah_uang < $totalBiayaSetelahDiskon) {
+        return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
+    }
+
+    $kembalian = $request->jumlah_uang - $totalBiayaSetelahDiskon;
+
+    // Simpan transaksi utama
+    $transaksi = TransaksiPenjualan::create([
+        'id_pelanggan' => $request->id_pelanggan,
+        'tanggal_penjualan' => $request->tanggal_transaksi,
+        'total_biaya' => $totalBiayaSetelahDiskon,
+        'diskon' => $diskon,
+        'jumlah_uang' => $request->jumlah_uang,
+        'kembalian' => $kembalian,
+        'id_user' => Auth::id(),
+        'metode_pembayaran' => $request->metode_pembayaran,
+    ]);
+
+    // Simpan detail transaksi
+    foreach ($cart as $item) {
+        $transaksi->details()->create([
+            'id_menu' => $item['id_menu'],
+            'nama_menu' => $item['nama_menu'],
+            'jumlah' => $item['jumlah'],
+            'harga_satuan' => $item['harga'],
+            'subtotal' => $item['subtotal'],
+        ]);
+    }
+
+    // Tambahkan poin baru ke pelanggan (5% dari total biaya sebelum diskon)
+    if ($request->id_pelanggan) {
+        $pelanggan = Pelanggan::find($request->id_pelanggan);
+        if ($pelanggan) {
+            $poinBaru = floor($totalHargaAsli * 0.05); // 5% dari total biaya sebelum diskon
+            $pelanggan->increment('jumlah_poin', $poinBaru);
+        }
+    }
+
+    session()->forget('cart'); // Kosongkan keranjang
+
+    return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
+}
+
+    
     /**
      * Menambahkan menu ke keranjang
      */

@@ -101,6 +101,12 @@
                             <label for="gunakan_poin" style="font-weight: bold;">Gunakan Poin (Setiap 1 poin = Rp 100)</label>
                         </div>
                         <div style="margin-bottom: 15px;">
+                            <label for="subtotal_sebelum_diskon" style="font-weight: bold;">Subtotal Sebelum Diskon</label>
+                            <input type="text" id="subtotal_sebelum_diskon" class="form-control"
+                                style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;" 
+                                value="Rp {{ number_format(array_sum(array_column($cart, 'subtotal')), 0, ',', '.') }}" readonly>
+                        </div>
+                        <div style="margin-bottom: 15px;">
                             <label for="total_biaya" style="font-weight: bold;">Total Biaya</label>
                             <input type="text" id="total_biaya" class="form-control"
                                 style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;"
