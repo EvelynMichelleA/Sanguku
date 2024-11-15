@@ -60,25 +60,18 @@ class TransaksiPenjualanController extends Controller
 
     public function store(Request $request)
 {
+    // Get the cart from session
     $cart = session()->get('cart', []);
     if (empty($cart)) {
         return redirect()->route('transaksi-penjualan.create')->withErrors('Keranjang masih kosong!');
     }
 
-    $validatedData = $request->validate([
-        'id_pelanggan' => 'nullable|exists:pelanggan,id_pelanggan',
-        'tanggal_transaksi' => 'required|date',
-        'metode_pembayaran' => 'required',
-        'jumlah_uang' => 'required|numeric|min:0',
-        'gunakan_poin' => 'nullable|boolean',
-    ]);
-
-    // Hitung total harga sebelum diskon
-    $totalHargaSebelumDiskon = array_sum(array_column($cart, 'subtotal'));
-    $totalHargaAsli = $totalHargaSebelumDiskon; // Simpan nilai asli sebelum diskon diterapkan
-    $diskon = 0;
+    // Calculate the subtotal (total price before discount)
+    $totalHargaSebelumDiskon = array_sum(array_column($cart, 'subtotal'));  // Sum the subtotals of the cart
+    $totalHargaAsli = $totalHargaSebelumDiskon;  // Store original subtotal before any discount
     $jumlahPoinDigunakan = 0;
 
+    // Apply discount if points are used
     if ($request->gunakan_poin && $request->id_pelanggan) {
         $pelanggan = Pelanggan::find($request->id_pelanggan);
 
@@ -87,42 +80,48 @@ class TransaksiPenjualanController extends Controller
             $diskon = $jumlahPoin;
             $jumlahPoinDigunakan = $jumlahPoin;
 
-            // Jika diskon lebih besar dari total biaya, sesuaikan diskon
+            // If discount is more than the total price, adjust the discount
             if ($diskon > $totalHargaSebelumDiskon) {
-                $jumlahPoinDigunakan = floor($totalHargaSebelumDiskon); // Hitung poin yang digunakan
+                $jumlahPoinDigunakan = floor($totalHargaSebelumDiskon); // Use points equivalent to the total
                 $diskon = $jumlahPoinDigunakan;
             }
 
-            // Kurangi total harga dengan diskon
+            // Subtract the discount from the total price
             $totalHargaSebelumDiskon -= $diskon;
 
-            // Kurangi poin pelanggan
+            // Deduct the used points from the customer
             $pelanggan->decrement('jumlah_poin', $jumlahPoinDigunakan);
         }
     }
 
-    // Hitung total biaya setelah diskon
+    // Calculate the total cost after discount
     $totalBiayaSetelahDiskon = max(0, $totalHargaSebelumDiskon);
 
+    // Validate the amount provided by the user
     if ($request->jumlah_uang < $totalBiayaSetelahDiskon) {
         return redirect()->route('transaksi-penjualan.create')->withErrors('Jumlah uang tidak mencukupi.');
     }
 
     $kembalian = $request->jumlah_uang - $totalBiayaSetelahDiskon;
 
-    // Simpan transaksi utama
+    // Ensure the values for subtotal and diskon are not missing
+    $subtotal = $totalHargaAsli ?: 0; // Default to 0 if not set
+    $diskon = $diskon ?: 0; // Default to 0 if not set
+
+    // Save the main transaction with subtotal and discount
     $transaksi = TransaksiPenjualan::create([
         'id_pelanggan' => $request->id_pelanggan,
         'tanggal_penjualan' => $request->tanggal_transaksi,
         'total_biaya' => $totalBiayaSetelahDiskon,
-        'diskon' => $diskon,
+        'diskon' => $jumlahPoinDigunakan, // Save the discount (points used)
+        'subtotal' => $totalHargaSebelumDiskon,  // Save the subtotal before discount
         'jumlah_uang' => $request->jumlah_uang,
         'kembalian' => $kembalian,
         'id_user' => Auth::id(),
         'metode_pembayaran' => $request->metode_pembayaran,
     ]);
 
-    // Simpan detail transaksi
+    // Save the transaction details (items in the cart)
     foreach ($cart as $item) {
         $transaksi->details()->create([
             'id_menu' => $item['id_menu'],
@@ -133,21 +132,20 @@ class TransaksiPenjualanController extends Controller
         ]);
     }
 
-    // Tambahkan poin baru ke pelanggan (5% dari total biaya sebelum diskon)
+    // Add points to the customer (5% of the total price before discount)
     if ($request->id_pelanggan) {
         $pelanggan = Pelanggan::find($request->id_pelanggan);
         if ($pelanggan) {
-            $poinBaru = floor($totalHargaAsli * 0.05); // 5% dari total biaya sebelum diskon
+            $poinBaru = floor($totalHargaAsli * 0.05); // 5% of the total price before discount
             $pelanggan->increment('jumlah_poin', $poinBaru);
         }
     }
 
-    session()->forget('cart'); // Kosongkan keranjang
+    session()->forget('cart'); // Clear the cart after the transaction is saved
 
     return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
 }
 
-    
     /**
      * Menambahkan menu ke keranjang
      */

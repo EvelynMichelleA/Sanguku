@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id('id_transaksi_penjualan');
             $table->unsignedBigInteger('id_pelanggan')->nullable();
             $table->unsignedBigInteger('id_user');
-            $table->decimal('subtotal', 15, 2);
-            $table->decimal('diskon', 15, 2);
+            $table->decimal('subtotal', 15, 2)->default(0);
+            $table->decimal('diskon', 15, 2)->default(0);
             $table->decimal('total_biaya', 15, 2);
             $table->timestamp('tanggal_transaksi')->useCurrent();
             $table->string('metode_pembayaran');

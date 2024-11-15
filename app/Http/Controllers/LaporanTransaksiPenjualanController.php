@@ -42,6 +42,7 @@ class LaporanTransaksiPenjualanController extends Controller
         // Kirim data ke view
         return view('laporan_transaksi_penjualan.index', compact('transaksi', 'pelanggan'));
     }
+
     public function exportPDF()
     {
         // Ambil parameter filter dari query string
@@ -61,12 +62,14 @@ class LaporanTransaksiPenjualanController extends Controller
         }
 
         // Ambil semua data hasil filter
-        $pengeluaran = $query->orderBy('tanggal_transaksi', 'desc')->get();
+        $transaksi = $query->orderBy('tanggal_transaksi', 'desc')->get();
 
         // Kirim data ke view PDF
-        $pdf = Pdf::loadView('laporan_transaksi.pdf', compact('transaksi', 'start_date', 'end_date'));
+        $pdf = Pdf::loadView('laporan_transaksi_penjualan.pdf', compact('transaksi', 'start_date', 'end_date'));
 
         // Unduh file PDF
         return $pdf->download('laporan_transaksi.pdf');
     }
+
+    
 }

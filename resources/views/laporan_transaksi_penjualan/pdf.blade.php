@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laporan Pengeluaran</title>
+    <title>Laporan Transaksi</title>
     <style>
         @page {
             size: A4 landscape;
@@ -46,44 +46,47 @@
 <body>
     <header>
         <h2>Laporan Transaksi</h2>
-        <h4>Nama User: {{ $user->name }}</h4>
-        <h4>Nama Pelanggan: {{ $pelanggan->nama_pelanggan }}</h4>
-        <h5>Tanggal Transaksi: {{ $transaksi->tanggal_transaksi->format('d-m-Y') }}</h5>
+        <h4>Periode: 
+            {{ $start_date ? $start_date : 'Tidak Ditentukan' }} 
+            sampai 
+            {{ $end_date ? $end_date : 'Tidak Ditentukan' }}
+        </h4>
+        <h5>Tanggal Laporan: {{ now()->format('d-m-Y') }}</h5>
     </header>
 
     <table>
         <thead>
             <tr>
                 <th>No</th>
-                <th>Nama Menu</th>
-                <th>Jumlah</th>
-                <th>Harga Satuan</th>
+                <th>Tanggal Transaksi</th>
+                <th>Nama User</th>
+                <th>Nama Pelanggan</th>
                 <th>Subtotal</th>
+                <th>Diskon</th>
+                <th>Total Biaya</th>
             </tr>
         </thead>
         <tbody>
-            @php $totalBiaya = 0; @endphp
-            @foreach($transaksi->details as $index => $detail)
-                @php $totalBiaya += $detail->subtotal; @endphp
+            @php $grandTotal = 0; @endphp
+            @forelse($transaksi as $index => $item)
+                @php $grandTotal += $item->total_biaya; @endphp
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $detail->nama_menu }}</td>
-                    <td>{{ $detail->jumlah }}</td>
-                    <td>{{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
-                    <td>{{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                    <td>{{ $item->tanggal_transaksi }}</td>
+                    <td>{{ $item->user->name }}</td>
+                    <td>{{ $item->pelanggan->nama_pelanggan }}</td>
+                    <td>{{ 'Rp ' . number_format($item->subtotal, 2, ',', '.') }}</td>
+                    <td>{{ 'Rp ' . number_format($item->diskon, 2, ',', '.') }}</td>
+                    <td>{{ 'Rp ' . number_format($item->total_biaya, 2, ',', '.') }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="7" style="text-align: center;">Tidak ada data transaksi</td>
+                </tr>
+            @endforelse
             <tr class="total-row">
-                <td colspan="4" style="text-align: right;">Total Biaya</td>
-                <td>{{ number_format($totalBiaya, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td colspan="4" style="text-align: right;">Jumlah Poin Digunakan</td>
-                <td>{{ number_format($transaksi->diskon, 0, ',', '.') }}</td>
-            </tr>
-            <tr class="total-row">
-                <td colspan="4" style="text-align: right;">Total Setelah Diskon</td>
-                <td>{{ number_format($totalBiaya - $transaksi->diskon, 0, ',', '.') }}</td>
+                <td colspan="6" style="text-align: right;">Total Pemasukan</td>
+                <td>{{ 'Rp ' . number_format($grandTotal, 2, ',', '.') }}</td>
             </tr>
         </tbody>
     </table>

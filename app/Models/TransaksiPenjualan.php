@@ -17,6 +17,8 @@ class TransaksiPenjualan extends Model
         'total_biaya',
         'tanggal_transaksi',
         'metode_pembayaran',
+        'subtotal',
+        'diskon',
         'jumlah_uang',
         'kembalian',
     ];

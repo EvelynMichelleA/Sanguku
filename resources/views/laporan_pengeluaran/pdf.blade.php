@@ -53,15 +53,15 @@
         </h4>
         <h5>Tanggal Laporan: {{ now()->format('d-m-Y') }}</h5>
     </header>
+
     <table>
         <thead>
             <tr>
                 <th>No</th>
                 <th>Tanggal Pengeluaran</th>
                 <th>Nama Pengeluaran</th>
-                <th>Total Pengeluaran</th>
                 <th>Keterangan</th>
-                <th>Pengguna</th>
+                <th>Total Pengeluaran</th>
             </tr>
         </thead>
         <tbody>
@@ -72,21 +72,21 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->tanggal_pengeluaran }}</td>
                     <td>{{ $item->nama_pengeluaran }}</td>
-                    <td>{{ number_format($item->total_pengeluaran, 2) }}</td>
                     <td>{{ $item->keterangan_pengeluaran }}</td>
-                    <td>{{ $item->user->name }}</td>
+                    <td>{{ 'Rp ' . number_format($item->total_pengeluaran, 2, ',', '.') }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center;">Tidak ada data pengeluaran</td>
+                    <td colspan="5" style="text-align: center;">Tidak ada data pengeluaran</td>
                 </tr>
             @endforelse
             <tr class="total-row">
-                <td colspan="3" style="text-align: right;">Total Pengeluaran</td>
-                <td colspan="3">{{ number_format($grandTotal, 2) }}</td>
+                <td colspan="4" style="text-align: right;">Total Pengeluaran</td>
+                <td>{{ 'Rp ' . number_format($grandTotal, 2, ',', '.') }}</td>
             </tr>
         </tbody>
     </table>
+
     <footer>
         Dicetak pada: {{ now()->format('d-m-Y H:i:s') }}
     </footer>
