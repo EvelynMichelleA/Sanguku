@@ -104,10 +104,11 @@ class TransaksiPenjualanController extends Controller
 
     $kembalian = $request->jumlah_uang - $totalBiayaSetelahDiskon;
 
+    $diskon = $request->input('diskon', 0);
     // Ensure the values for subtotal and diskon are not missing
     $subtotal = $totalHargaAsli ?: 0; // Default to 0 if not set
     $diskon = $diskon ?: 0; // Default to 0 if not set
-
+   
     // Save the main transaction with subtotal and discount
     $transaksi = TransaksiPenjualan::create([
         'id_pelanggan' => $request->id_pelanggan,

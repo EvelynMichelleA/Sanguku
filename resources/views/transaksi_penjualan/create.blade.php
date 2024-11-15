@@ -210,7 +210,7 @@
         gunakanPoinCheckbox.checked = false;
         totalBiayaInput.value = `Rp ${originalTotalBiaya.toLocaleString('id-ID')}`;
     });
-
+    let diskon = 0;
     // Update total biaya when checkbox is clicked
     gunakanPoinCheckbox.addEventListener('change', () => {
         const jumlahPoin = parseFloat(poinInput.value) || 0;
@@ -225,6 +225,10 @@
         subtotalInput.value = originalTotalBiaya;
         diskonInput.value = diskon;
     });
+    if (!gunakanPoinCheckbox.checked) {
+    diskonInput.value = 0;
+    totalBiayaInput.value = `Rp ${originalTotalBiaya.toLocaleString('id-ID')}`;
+}
 
     // Update kembalian dynamically after discount
     jumlahUangInput.addEventListener('input', () => {
