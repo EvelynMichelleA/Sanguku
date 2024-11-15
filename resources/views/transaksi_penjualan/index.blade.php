@@ -213,6 +213,13 @@
                                 <a href="{{ route('transaksi-penjualan.cetak', $trans->id_transaksi_penjualan) }}">
                                     <i class="fas fa-print"></i>
                                 </a>
+                                <form action="{{ route('transaksi-penjualan.sendEmail', $trans->id_transaksi_penjualan) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning btn-sm"
+                                        style="padding: 5px 10px; border-radius: 5px; background-color: #ffcc00; color: #333;">
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
+                                </form>
                         </td>
                     </tr>
                 @empty

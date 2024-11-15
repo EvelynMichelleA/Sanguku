@@ -137,10 +137,15 @@ Route::prefix('transaksi-penjualan')->name('transaksi-penjualan.')->group(functi
     Route::get('/remove-from-cart/{id_menu}', [TransaksiPenjualanController::class, 'removeFromCart'])->name('removeFromCart');
     Route::get('/{id_transaksi_penjualan}/show', [TransaksiPenjualanController::class, 'show'])->name('show');
     Route::get('/{id_transaksi_penjualan}/cetak', [TransaksiPenjualanController::class, 'cetak'])->name('cetak');
+    Route::post('/send-email/{id}', [TransaksiPenjualanController::class, 'sendEmail'])->name('sendEmail');
+
 
 });
 
 Route::get('/laporan-pengeluaran', [LaporanPengeluaranController::class, 'index'])->name('laporan-pengeluaran.index');
 Route::get('laporan-pengeluaran/export-pdf', [LaporanPengeluaranController::class, 'exportPDF'])->name('laporan-pengeluaran.exportPDF');
+
+Route::get('/laporan-transaksi', [LaporanTransaksiPenjualanController::class, 'index'])->name('laporan-transaksi.index');
+Route::get('laporan-transaksi/export-pdf', [LaporanTransaksiPenjualanController::class, 'exportPDF'])->name('laporan-transaksi.exportPDF');
 // Auth routes
 require __DIR__ . '/auth.php';

@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\PoinPelangganEmail;
 use App\Models\TransaksiPenjualan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Models\DetailTransaksiPenjualan;
 
@@ -211,4 +213,32 @@ class TransaksiPenjualanController extends Controller
         // Unduh atau tampilkan PDF
         return $pdf->stream('nota-transaksi-' . $id . '.pdf');
     }
+
+    public function sendEmail($id)
+{
+    // Ambil data transaksi berdasarkan ID
+    $transaksi = TransaksiPenjualan::with('pelanggan')->findOrFail($id);
+
+    // Pastikan transaksi memiliki pelanggan
+    if ($transaksi->id_pelanggan && $transaksi->pelanggan) {
+        $pelanggan = $transaksi->pelanggan;
+
+        // Data poin pelanggan
+        $poinSebelum = $pelanggan->jumlah_poin - floor($transaksi->total_biaya * 0.05);
+        $poinDihasilkan = floor($transaksi->total_biaya * 0.05);
+        $poinDigunakan = $transaksi->diskon;
+
+        // Periksa apakah email pelanggan tersedia
+        if (!empty($pelanggan->email)) {
+            // Kirim email menggunakan Mailable
+            Mail::to($pelanggan->email)->send(new PoinPelangganEmail($pelanggan, $poinSebelum, $poinDigunakan, $poinDihasilkan));
+
+            return redirect()->back()->with('success', 'Email berhasil dikirim.');
+        } else {
+            return redirect()->back()->withErrors('Pelanggan tidak memiliki email.');
+        }
+    } else {
+        return redirect()->back()->withErrors('Transaksi tidak memiliki data pelanggan.');
+    }
+}
 }
