@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pengeluaran/create', [PengeluaranController::class, 'create'])->name('pengeluaran.create');
     Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
     Route::get('/pengeluaran/{id}/detail', [PengeluaranController::class, 'show'])->name('pengeluaran.show');
+    Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
 });
 
 // Route untuk resource controller

@@ -23,21 +23,24 @@ class LaporanTransaksiPenjualanController extends Controller
 
         // Filter berdasarkan tanggal
         if (!empty($tanggalDari) && !empty($tanggalSampai)) {
+            $tanggalDari = $tanggalDari . ' 00:00:00'; // Awal hari
+            $tanggalSampai = $tanggalSampai . ' 23:59:59'; // Akhir hari
+        
             $query->whereBetween('tanggal_transaksi', [$tanggalDari, $tanggalSampai]);
-        }
+        }      
 
-        // Filter berdasarkan nama pelanggan
-        if (!empty($namaPelanggan)) {
-            $query->whereHas('pelanggan', function ($q) use ($namaPelanggan) {
-                $q->where('nama_pelanggan', 'like', "%$namaPelanggan%");
-            });
-        }
+       // Filter berdasarkan nama pelanggan
+       if (!empty($namaPelanggan)) {
+           $query->whereHas('pelanggan', function ($q) use ($namaPelanggan) {
+               $q->where('nama_pelanggan', 'like', "%$namaPelanggan%");
+           });
+       }
 
-        // Ambil data hasil filter
-        $transaksi = $query->paginate(50);
+       // Ambil data hasil filter
+       $transaksi = $query->paginate(50);
 
-        // Ambil semua data pelanggan untuk dropdown
-        $pelanggan = Pelanggan::all();
+       // Ambil semua data pelanggan untuk dropdown
+       $pelanggan = Pelanggan::all();
 
         // Kirim data ke view
         return view('laporan_transaksi_penjualan.index', compact('transaksi', 'pelanggan'));

@@ -132,9 +132,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($pengeluaran as $item)
-                    <tr>
-                        <td>{{ $item->id_pengeluaran }}</td>
+                @forelse($pengeluaran as $index => $item)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
                         <td>{{ $item->nama_pengeluaran }}</td>
                         <td>Rp {{ number_format($item->total_pengeluaran, 0, ',', '.') }}</td>
                         <td>{{ $item->tanggal_pengeluaran }}</td>
@@ -142,7 +142,13 @@
                             <a href="{{ route('pengeluaran.show', $item->id_pengeluaran) }}" title="Lihat Detail">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="/pengeluaran/{{ $item->id_pengeluaran }}/delete"><i class="fas fa-trash-alt"></i></a>
+                            <form action="{{ route('pengeluaran.destroy', $item->id_pengeluaran) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm text-danger p-0" onclick="return confirm('Apakah Anda yakin ingin menghapus pengeluaran ini?')" style=" font-size: 20px; color: #1e3a8a; border:none; background:none;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     @empty

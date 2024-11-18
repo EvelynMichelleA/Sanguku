@@ -6,18 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota Transaksi</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
+        /* Mengatur ukuran kertas Nota untuk pencetakan */
+        @page {
+            size: 90mm 297mm; /* Ukuran standar nota */
+            margin: 0; /* Menghilangkan margin untuk ukuran penuh */
         }
 
+        /* Reset margin dan padding untuk body dan html */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 90mm; /* Ukuran kertas */
+            height: 297mm; /* Ukuran kertas */
+        }
+
+        /* Styling untuk Nota */
         .nota {
             width: 80mm;
             margin: 0 auto;
             background-color: #ffffff;
-            padding: 20px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -25,24 +33,24 @@
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .header h1 {
-            font-size: 20px;
+            font-size: 16px;
             margin: 0;
             font-weight: bold;
         }
 
         .header p {
-            font-size: 12px;
+            font-size: 10px;
             margin: 0;
             color: #555;
         }
 
         .info {
-            margin-bottom: 20px;
-            font-size: 12px;
+            margin-bottom: 15px;
+            font-size: 10px;
         }
 
         .info p {
@@ -53,15 +61,15 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         table th,
         table td {
             border: 1px dashed #ddd;
-            padding: 8px;
+            padding: 5px;
             text-align: left;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         table th {
@@ -71,15 +79,15 @@
 
         .total {
             text-align: right;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             margin-top: 10px;
         }
 
         .footer {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 10px;
+            font-size: 8px;
             color: #666;
         }
 
@@ -131,6 +139,14 @@
         </table>
 
         <!-- Total Biaya -->
+        <div class="subtotal">
+            <p>Subtotal: Rp {{ number_format($transaksi->subtotal, 0, ',', '.') }}</p>
+        </div>
+
+        <div class="diskon">
+            <p>Diskon: Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}</p>
+        </div>
+
         <div class="total">
             <p>Total Biaya: Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}</p>
         </div>

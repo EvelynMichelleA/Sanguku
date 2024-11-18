@@ -21,8 +21,6 @@ class PengeluaranController extends Controller
     } elseif ($request->end_date) {
         $query->whereDate('tanggal_pengeluaran', '<=', $request->end_date);
     }
-
-    $pengeluaran = $query->orderBy('tanggal_pengeluaran', 'desc')->paginate(20);
     // Kirim data ke view
     return view('pengeluaran.index', compact('pengeluaran'));
     }
@@ -61,4 +59,14 @@ public function show($id_pengeluaran)
     return view('pengeluaran.show', compact('pengeluaran')); // Kirim data ke view
 }
 
+
+
+public function destroy($id_pengeluaran)
+{
+    $pengeluaran = Pengeluaran::findOrFail($id_pengeluaran); // Gunakan id_menu jika itu nama kolom
+
+    $pengeluaran->delete();
+
+    return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran berhasil dihapus!');
+}
 }

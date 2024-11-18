@@ -74,7 +74,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->tanggal_transaksi }}</td>
                     <td>{{ $item->user->name }}</td>
-                    <td>{{ $item->pelanggan->nama_pelanggan }}</td>
+                    <td>{{ $item->pelanggan ? $item->pelanggan->nama_pelanggan : 'Guest' }}</td>
                     <td>{{ 'Rp ' . number_format($item->subtotal, 2, ',', '.') }}</td>
                     <td>{{ 'Rp ' . number_format($item->diskon, 2, ',', '.') }}</td>
                     <td>{{ 'Rp ' . number_format($item->total_biaya, 2, ',', '.') }}</td>

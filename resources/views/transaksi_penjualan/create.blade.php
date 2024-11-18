@@ -111,7 +111,7 @@
                         </div>
                         <div style="display: flex; flex-direction: column;">
                             <label for="subtotal_sebelum_diskon" style="font-weight: bold;">Subtotal Sebelum Diskon</label>
-                            <input type="text" id="subtotal_sebelum_diskon" class="form-control"
+                            <input type="text" id="subtotal" class="form-control"
                                 style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;"
                                 value="Rp {{ number_format(array_sum(array_column($cart, 'subtotal')), 0, ',', '.') }}"
                                 readonly>

@@ -21,21 +21,21 @@ class TransaksiPenjualanController extends Controller
     {
         $transaksi = TransaksiPenjualan::with('details')->paginate(50);
 
-        // Ambil data filter dari request global
-        $tanggalDari = request('tanggal_dari');
-        $tanggalSampai = request('tanggal_sampai');
-        $namaPelanggan = request('nama_pelanggan');
-
-        // Query dasar transaksi penjualan
-        $query = TransaksiPenjualan::query();
-
-        // Filter berdasarkan tanggal
-        if (!empty($tanggalDari) && !empty($tanggalSampai)) {
-            $tanggalDari = $tanggalDari . ' 00:00:00'; // Awal hari
-            $tanggalSampai = $tanggalSampai . ' 23:59:59'; // Akhir hari
-        
-            $query->whereBetween('tanggal_transaksi', [$tanggalDari, $tanggalSampai]);
-        }        
+         // Ambil data filter dari request global
+         $tanggalDari = request('tanggal_dari');
+         $tanggalSampai = request('tanggal_sampai');
+         $namaPelanggan = request('nama_pelanggan');
+ 
+         // Query dasar transaksi penjualan
+         $query = TransaksiPenjualan::query();
+ 
+         // Filter berdasarkan tanggal
+         if (!empty($tanggalDari) && !empty($tanggalSampai)) {
+             $tanggalDari = $tanggalDari . ' 00:00:00'; // Awal hari
+             $tanggalSampai = $tanggalSampai . ' 23:59:59'; // Akhir hari
+         
+             $query->whereBetween('tanggal_transaksi', [$tanggalDari, $tanggalSampai]);
+         }      
 
         // Filter berdasarkan nama pelanggan
         if (!empty($namaPelanggan)) {
@@ -119,7 +119,7 @@ class TransaksiPenjualanController extends Controller
             'tanggal_penjualan' => $request->tanggal_transaksi,
             'total_biaya' => $totalBiayaSetelahDiskon,
             'diskon' => $jumlahPoinDigunakan, // Save the discount (points used)
-            'subtotal' => $totalHargaSebelumDiskon,  // Save the subtotal before discount
+            'subtotal' => $totalHargaAsli,  // Save the subtotal before discount
             'jumlah_uang' => $request->jumlah_uang,
             'kembalian' => $kembalian,
             'id_user' => Auth::id(),

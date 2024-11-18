@@ -183,7 +183,7 @@
         <h1>Laporan Transaksi Penjualan</h1>
 
         <div class="button-container">
-            <a href="{{ route('laporan-transaksi.exportPDF') }}" class="add-button">EXPORT</a>
+            <a href="{{ route('laporan-transaksi.exportPDF', request()->all()) }}" class="add-button">EXPORT</a>
             <a href="#" class="filter-button" id="filter-button"><i class="fas fa-filter"></i></a>
         </div>
 
