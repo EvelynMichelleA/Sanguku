@@ -43,32 +43,44 @@ class LaporanTransaksiPenjualanController extends Controller
        $pelanggan = Pelanggan::all();
 
         // Kirim data ke view
-        return view('laporan_transaksi_penjualan.index', compact('transaksi', 'pelanggan'));
+        return view('laporan_transaksi_penjualan.index', compact('transaksi', 'pelanggan',  'tanggalDari', 'tanggalSampai'));
     }
 
     public function exportPDF()
     {
-        // Ambil parameter filter dari query string
-        $start_date = request('start_date');
-        $end_date = request('end_date');
+        $transaksi = TransaksiPenjualan::with('details')->paginate(50);
 
-        // Query dasar
-        $query = TransaksiPenjualan::with('user');
+        // Ambil data filter dari request global
+        $tanggalDari = request('tanggal_dari');
+        $tanggalSampai = request('tanggal_sampai');
+        $namaPelanggan = request('nama_pelanggan');
 
-        // Filter berdasarkan tanggal jika parameter tersedia
-        if (!empty($start_date) && !empty($end_date)) {
-            $query->whereBetween('tanggal_transaksi', [$start_date, $end_date]);
-        } elseif (!empty($start_date)) {
-            $query->whereDate('tanggal_transaksi', '>=', $start_date);
-        } elseif (!empty($end_date)) {
-            $query->whereDate('tanggal_transaksi', '<=', $end_date);
-        }
+        // Query dasar transaksi penjualan
+        $query = TransaksiPenjualan::query();
 
-        // Ambil semua data hasil filter
-        $transaksi = $query->orderBy('tanggal_transaksi', 'desc')->get();
+        // Filter berdasarkan tanggal
+        if (!empty($tanggalDari) && !empty($tanggalSampai)) {
+            $tanggalDari = $tanggalDari . ' 00:00:00'; // Awal hari
+            $tanggalSampai = $tanggalSampai . ' 23:59:59'; // Akhir hari
+        
+            $query->whereBetween('tanggal_transaksi', [$tanggalDari, $tanggalSampai]);
+        }      
+
+       // Filter berdasarkan nama pelanggan
+       if (!empty($namaPelanggan)) {
+           $query->whereHas('pelanggan', function ($q) use ($namaPelanggan) {
+               $q->where('nama_pelanggan', 'like', "%$namaPelanggan%");
+           });
+       }
+
+       // Ambil data hasil filter
+       $transaksi = $query->paginate(50);
+
+       // Ambil semua data pelanggan untuk dropdown
+       $pelanggan = Pelanggan::all();
 
         // Kirim data ke view PDF
-        $pdf = Pdf::loadView('laporan_transaksi_penjualan.pdf', compact('transaksi', 'start_date', 'end_date'));
+        $pdf = Pdf::loadView('laporan_transaksi_penjualan.pdf', compact('transaksi', 'pelanggan'));
 
         // Unduh file PDF
         return $pdf->download('laporan_transaksi.pdf');

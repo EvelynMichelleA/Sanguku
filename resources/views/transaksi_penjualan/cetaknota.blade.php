@@ -8,16 +8,21 @@
     <style>
         /* Mengatur ukuran kertas Nota untuk pencetakan */
         @page {
-            size: 90mm 297mm; /* Ukuran standar nota */
-            margin: 0; /* Menghilangkan margin untuk ukuran penuh */
+            size: 90mm 297mm;
+            /* Ukuran standar nota */
+            margin: 0;
+            /* Menghilangkan margin untuk ukuran penuh */
         }
 
         /* Reset margin dan padding untuk body dan html */
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
-            width: 90mm; /* Ukuran kertas */
-            height: 297mm; /* Ukuran kertas */
+            width: 90mm;
+            /* Ukuran kertas */
+            height: 297mm;
+            /* Ukuran kertas */
         }
 
         /* Styling untuk Nota */
@@ -77,12 +82,14 @@
             font-weight: bold;
         }
 
-        .total {
-            text-align: right;
+
+        .subtotal {
+            text-align: left;
             font-size: 12px;
             font-weight: bold;
             margin-top: 10px;
         }
+       
 
         .footer {
             margin-top: 15px;
@@ -141,15 +148,10 @@
         <!-- Total Biaya -->
         <div class="subtotal">
             <p>Subtotal: Rp {{ number_format($transaksi->subtotal, 0, ',', '.') }}</p>
-        </div>
-
-        <div class="diskon">
             <p>Diskon: Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}</p>
-        </div>
-
-        <div class="total">
             <p>Total Biaya: Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}</p>
-        </div>
+            <p>Jumlah Bayar: Rp {{ number_format($transaksi->jumlah_uang, 0, ',', '.') }}</p>
+            <p>Kembalian: Rp {{ number_format($transaksi->kembalian, 0, ',', '.') }}</p>
 
         <!-- Footer -->
         <div class="footer">
