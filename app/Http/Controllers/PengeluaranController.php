@@ -15,14 +15,14 @@ class PengeluaranController extends Controller
 
     // Filter berdasarkan tanggal jika ada
     if ($request->start_date && $request->end_date) {
-        $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        $query->whereBetween('tanggal_pengeluaran', [$request->start_date, $request->end_date]);
     } elseif ($request->start_date) {
-        $query->whereDate('tanggal', '>=', $request->start_date);
+        $query->whereDate('tanggal_pengeluaran', '>=', $request->start_date);
     } elseif ($request->end_date) {
-        $query->whereDate('tanggal', '<=', $request->end_date);
+        $query->whereDate('tanggal_pengeluaran', '<=', $request->end_date);
     }
 
-    $pengeluaran = $query->orderBy('tanggal', 'desc')->paginate(10);
+    $pengeluaran = $query->orderBy('tanggal_pengeluaran', 'desc')->paginate(20);
     // Kirim data ke view
     return view('pengeluaran.index', compact('pengeluaran'));
     }
@@ -39,7 +39,10 @@ class PengeluaranController extends Controller
         'nama_pengeluaran' => 'required|string|max:255',
         'total_pengeluaran' => 'required|numeric|min:0',
         'tanggal_pengeluaran' => 'required|date',
-        'keterangan_pengeluaran' => 'nullable|string',
+        'keterangan_pengeluaran' => 'required|string',
+    ], [
+        'total_pengeluaran.numeric' => 'The price field must be a number.',
+        'keterangan_pengeluaran.required' => 'Please fill this field.',
     ]);
 
     // Tambahkan id dari pengguna yang sedang login
