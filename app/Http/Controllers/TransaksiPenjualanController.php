@@ -31,8 +31,11 @@ class TransaksiPenjualanController extends Controller
 
         // Filter berdasarkan tanggal
         if (!empty($tanggalDari) && !empty($tanggalSampai)) {
+            $tanggalDari = $tanggalDari . ' 00:00:00'; // Awal hari
+            $tanggalSampai = $tanggalSampai . ' 23:59:59'; // Akhir hari
+        
             $query->whereBetween('tanggal_transaksi', [$tanggalDari, $tanggalSampai]);
-        }
+        }        
 
         // Filter berdasarkan nama pelanggan
         if (!empty($namaPelanggan)) {
@@ -142,9 +145,17 @@ class TransaksiPenjualanController extends Controller
                 $pelanggan->increment('jumlah_poin', $poinBaru);
             }
         }
+        else {
+            $pelanggan = (object) [
+                'email_pelanggan' => 'guest@example.com',
+                'jumlah_poin' => 0,
+            ];
+        }
+        if (isset($pelanggan->email_pelanggan) && $pelanggan->email_pelanggan !== 'guest@example.com') {
+            Mail::to($pelanggan->email_pelanggan)->send(new InfoPoin($pelanggan, $diskon, $poinBaru ?? 0));
+        }
 
         session()->forget('cart'); // Clear the cart after the transaction is saved
-        Mail::to($pelanggan->email_pelanggan)->send(new InfoPoin($pelanggan, $diskon, $poinBaru));
         return redirect()->route('transaksi-penjualan.index')->with('success', 'Transaksi berhasil disimpan.');
         
     }

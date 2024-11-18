@@ -31,7 +31,7 @@
         .button-container {
             display: flex;
             position: absolute;
-            top: 20px;
+            top: 10px;
             right: 20px;
             gap: 10px;
         }
@@ -203,7 +203,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $trans->user->name }}</td>
-                        <td>{{ $trans->pelanggan?->nama_pelanggan ?? 'Guest' }}</td> <!-- Perbaikan di sini -->
+                        <td>{{ $trans->pelanggan?->nama_pelanggan ?? 'Guest' }}</td>
                         <td>{{ $trans->tanggal_transaksi }}</td>
                         <td>Rp {{ number_format($trans->total_biaya, 0, ',', '.') }}</td>
                         <td class="action-icons">
@@ -213,13 +213,6 @@
                                 <a href="{{ route('transaksi-penjualan.cetak', $trans->id_transaksi_penjualan) }}">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <form action="{{ route('transaksi-penjualan.sendEmail', $trans->id_transaksi_penjualan) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-warning btn-sm"
-                                        style="padding: 5px 10px; border-radius: 5px; background-color: #ffcc00; color: #333;">
-                                        <i class="fas fa-envelope"></i>
-                                    </button>
-                                </form>
                         </td>
                     </tr>
                 @empty
