@@ -10,17 +10,24 @@ class PengeluaranController extends Controller
 {
     public function index(Request $request)
     {
-        $pengeluaran = Pengeluaran::take(20)->get();
-        $query = Pengeluaran::query();
+        // Ambil parameter filter dari query string
+        $start_date = request('start_date');
+        $end_date = request('end_date');
 
-    // Filter berdasarkan tanggal jika ada
-    if ($request->start_date && $request->end_date) {
-        $query->whereBetween('tanggal_pengeluaran', [$request->start_date, $request->end_date]);
-    } elseif ($request->start_date) {
-        $query->whereDate('tanggal_pengeluaran', '>=', $request->start_date);
-    } elseif ($request->end_date) {
-        $query->whereDate('tanggal_pengeluaran', '<=', $request->end_date);
-    }
+        // Query dasar
+        $query = Pengeluaran::with('user');
+
+        // Filter berdasarkan tanggal jika parameter tersedia
+        if (!empty($start_date) && !empty($end_date)) {
+            $query->whereBetween('tanggal_pengeluaran', [$start_date, $end_date]);
+        } elseif (!empty($start_date)) {
+            $query->whereDate('tanggal_pengeluaran', '>=', $start_date);
+        } elseif (!empty($end_date)) {
+            $query->whereDate('tanggal_pengeluaran', '<=', $end_date);
+        }
+
+        // Ambil data hasil filter dengan pagination
+        $pengeluaran = $query->paginate(50);
     // Kirim data ke view
     return view('pengeluaran.index', compact('pengeluaran'));
     }
