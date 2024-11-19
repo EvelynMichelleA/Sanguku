@@ -99,7 +99,6 @@
             color: #3b82f6;
         }
 
-        /* Sidebar Filter Styling */
         #filter-sidebar {
             position: fixed;
             top: 0;
@@ -110,7 +109,7 @@
             box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
             overflow-y: auto;
-            transition: right 0.3s ease;
+            transition: right 0.3s ease-in-out;
             z-index: 1000;
         }
 
@@ -149,21 +148,34 @@
         #filter-sidebar button:hover {
             background-color: #1e3a8a;
         }
+
+        .reset-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .reset-button:hover {
+            background-color: #b31c1c;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f4ff;
+            color: #1e3a8a;
+        }
     </style>
 </head>
 
 <body>
-    <!-- Filter Sidebar -->
     <div id="filter-sidebar">
         <h3>Filter</h3>
         <form action="{{ route('laporan-transaksi.index') }}" method="GET">
-            <!-- Filter Tanggal Dari -->
             <label for="tanggal_dari">Tanggal Dari</label>
             <input type="date" id="tanggal_dari" name="tanggal_dari" value="{{ request('tanggal_dari') }}">
-            <!-- Filter Tanggal Sampai -->
             <label for="tanggal_sampai">Tanggal Sampai</label>
             <input type="date" id="tanggal_sampai" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}">
-            <!-- Filter Nama Pelanggan -->
             <label for="nama_pelanggan">Nama Pelanggan</label>
             <select id="nama_pelanggan" name="nama_pelanggan">
                 <option value="">Semua Pelanggan</option>
@@ -175,10 +187,10 @@
                 @endforeach
             </select>
             <button type="submit">Terapkan</button>
+            <button type="button" class="reset-button" onclick="window.location.href='{{ route('laporan-transaksi.index') }}'">Reset</button>
         </form>
     </div>
 
-    <!-- Content -->
     <div class="content">
         <h1>Laporan Transaksi Penjualan</h1>
 
@@ -194,6 +206,8 @@
                     <th>User</th>
                     <th>Nama Pelanggan</th>
                     <th>Tanggal Transaksi</th>
+                    <th>Subtotal</th>
+                    <th>Poin Digunakan</th>
                     <th>Total Biaya</th>
                 </tr>
             </thead>
@@ -202,31 +216,38 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $trans->user->name }}</td>
-                        <td>{{ $trans->pelanggan?->nama_pelanggan ?? 'Guest' }}</td> <!-- Perbaikan di sini -->
+                        <td>{{ $trans->pelanggan?->nama_pelanggan ?? 'Guest' }}</td>
                         <td>{{ $trans->tanggal_transaksi }}</td>
+                        <td>Rp {{ number_format($trans->subtotal, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($trans->diskon, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($trans->total_biaya, 0, ',', '.') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="padding: 20px; text-align: center; color: #1e3a8a; font-size: 16px;">
+                        <td colspan="7" style="padding: 20px; text-align: center; color: #ff4d4d; font-size: 16px;">
                             Tidak ada data transaksi penjualan ditemukan.
                         </td>
                     </tr>
                 @endforelse
+
+                @if ($transaksi->count())
+                    <tr class="total-row">
+                        <td colspan="4">Total</td>
+                        <td>Rp {{ number_format($transaksi->sum('subtotal'), 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($transaksi->sum('diskon'), 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($transaksi->sum('total_biaya'), 0, ',', '.') }}</td>
+                    </tr>
+                @endif
             </tbody>
         </table>
     </div>
+
     <script>
-        // JavaScript untuk membuka dan menutup sidebar filter
         const filterButton = document.getElementById('filter-button');
         const filterSidebar = document.getElementById('filter-sidebar');
 
         filterButton.addEventListener('click', () => {
-            if (filterSidebar.style.right === '0px') {
-                filterSidebar.style.right = '-300px';
-            } else {
-                filterSidebar.style.right = '0px';
-            }
+            filterSidebar.style.right = filterSidebar.style.right === '0px' ? '-300px' : '0px';
         });
     </script>
 </body>
