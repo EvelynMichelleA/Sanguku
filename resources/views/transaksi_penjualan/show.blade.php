@@ -156,6 +156,16 @@
                 <input type="text" class="form-control align-input" value="{{ $transaksi->metode_pembayaran }}" readonly>
             </div>
             <div class="col-md-6 mb-3">
+                <label class="custom-label">Subtotal</label>
+                <input type="text" class="form-control align-input"
+                    value="Rp {{ number_format($transaksi->subtotal, 0, ',', '.') }}" readonly>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="custom-label">Poin Digunakan</label>
+                <input type="text" class="form-control align-input"
+                    value="Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}" readonly>
+            </div>
+            <div class="col-md-6 mb-3">
                 <label class="custom-label">Total Biaya</label>
                 <input type="text" class="form-control align-input"
                     value="Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}" readonly>

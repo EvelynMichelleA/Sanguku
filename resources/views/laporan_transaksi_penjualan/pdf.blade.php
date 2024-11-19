@@ -67,9 +67,10 @@
             </tr>
         </thead>
         <tbody>
-            @php $grandTotal = 0; @endphp
+            @php $grandTotal = 0; $grandSubtotal=0;$grandDiskon=0; @endphp
             @forelse($transaksi as $index => $item)
-                @php $grandTotal += $item->total_biaya; @endphp
+                @php $grandTotal += $item->total_biaya; $grandSubtotal += $item->subtotal; $grandDiskon += $item->diskon; @endphp
+                
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->tanggal_transaksi }}</td>
@@ -84,6 +85,14 @@
                     <td colspan="7" style="text-align: center;">Tidak ada data transaksi</td>
                 </tr>
             @endforelse
+            <tr class="total-row">
+                <td colspan="6" style="text-align: right;">Total Sebelum Diskon</td>
+                <td>{{ 'Rp ' . number_format($grandSubtotal, 2, ',', '.') }}</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="6" style="text-align: right;">Total Diskon</td>
+                <td>{{ 'Rp ' . number_format($grandDiskon, 2, ',', '.') }}</td>
+            </tr>
             <tr class="total-row">
                 <td colspan="6" style="text-align: right;">Total Pemasukan</td>
                 <td>{{ 'Rp ' . number_format($grandTotal, 2, ',', '.') }}</td>
