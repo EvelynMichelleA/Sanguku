@@ -1,9 +1,12 @@
 <?php
 
-use App\Models\Pelanggan;
-use App\Models\TransaksiPenjualan;
-use App\Models\Pengeluaran;
 use Carbon\Carbon;
+use App\Models\Menu;
+use App\Models\Pelanggan;
+use App\Models\Pengeluaran;
+use App\Models\TransaksiPenjualan;
+use Illuminate\Support\Facades\DB;
+use App\Models\DetailTransaksiPenjualan;
 
 // Ambil data untuk dashboard
 $jumlahPelanggan = Pelanggan::count();
@@ -33,6 +36,17 @@ for ($month = 1; $month <= 12; $month++) {
     $dataPengeluaran[] = Pengeluaran::whereMonth('tanggal_pengeluaran', $month)->sum('total_pengeluaran');
 }
 
+    // Menu terlaris
+    $menuSalesData = DB::table('detail_transaksi_penjualans')
+        ->select('id_menu', DB::raw('COUNT(id_menu) as total_sales'))
+        ->groupBy('id_menu')
+        ->orderByDesc('total_sales')
+        ->limit(10)
+        ->get();
+
+    // Ambil nama menu berdasarkan id_menu
+    $menuNames = Menu::whereIn('id', $menuSalesData->pluck('id_menu'))->pluck('nama_menu')->toArray();
+    $menuSales = $menuSalesData->pluck('total_sales')->toArray();
 // Kirim data ke view
 return view('dashboard', [
     'jumlahPelanggan' => $jumlahPelanggan,
@@ -47,5 +61,7 @@ return view('dashboard', [
     'profit' => $profit,
     'loss' => $loss,
     'dataPenjualan' => $dataPenjualan,
-    'dataPengeluaran' => $dataPengeluaran
+    'dataPengeluaran' => $dataPengeluaran,
+    'menuNames' => $menuNames,
+    'menuSales' => $menuSales,
 ]);

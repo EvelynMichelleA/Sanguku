@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\{
     MenuController,
@@ -14,7 +15,9 @@ use App\Http\Controllers\{
     LaporanTransaksiPenjualanController
 };
 use App\Models\TransaksiPenjualan;
+use App\Models\DetailTransaksiPenjualan;
 use App\Models\Pengeluaran;
+use App\Models\Menu;
 use Carbon\Carbon;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Middleware\CheckRole;
@@ -59,7 +62,22 @@ Route::get('/dashboard', function () {
         $dataPengeluaran[] = $pengeluaranBulanan[$i] ?? 0;
     }
 
-    return view('dashboard', compact('dataPenjualan', 'dataPengeluaran'));
+    // Hitung menu terlaris
+    $menuTerlaris = DetailTransaksiPenjualan::with('menu')
+        ->select('id_menu', DB::raw('count(id_menu) as total_penjualan'))
+        ->groupBy('id_menu')
+        ->orderByDesc('total_penjualan')
+        ->limit(5)
+        ->get();
+
+    // Ambil nama menu dan jumlah penjualannya
+    $menuNames = $menuTerlaris->map(function ($item) {
+        return $item->menu->nama_menu; // Ambil nama menu dari relasi
+    })->toArray();
+
+    $menuSales = $menuTerlaris->pluck('total_penjualan')->toArray();
+
+    return view('dashboard', compact('dataPenjualan', 'dataPengeluaran', 'menuNames', 'menuSales'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route yang bisa diakses oleh semua role
