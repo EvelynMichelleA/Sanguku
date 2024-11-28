@@ -45,13 +45,12 @@
 </head>
 <body>
     <header>
-        <h2>Laporan Transaksi</h2>
-        {{-- <h4>Periode: 
-            {{ $tanggalDari ? \Carbon\Carbon::parse($tanggalDari)->format('d-m-Y') : 'Tidak Ditentukan' }} 
+        <h2>Laporan Transaksi Penjualan</h2>
+        <h4>Periode: 
+            {{ $start_date ? $start_date : 'Tidak Ditentukan' }} 
             sampai 
-            {{ $tanggalSampai ? \Carbon\Carbon::parse($tanggalSampai)->format('d-m-Y') : 'Tidak Ditentukan' }}
-        </h4> --}}
-        <h5>Tanggal Laporan: {{ now()->format('d-m-Y') }}</h5>
+            {{ $end_date ? $end_date : 'Tidak Ditentukan' }}
+        </h4>
     </header>
 
     <table>

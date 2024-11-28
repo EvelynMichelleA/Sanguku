@@ -51,7 +51,6 @@
             sampai 
             {{ $end_date ? $end_date : 'Tidak Ditentukan' }}
         </h4>
-        <h5>Tanggal Laporan: {{ now()->format('d-m-Y') }}</h5>
     </header>
 
     <table>

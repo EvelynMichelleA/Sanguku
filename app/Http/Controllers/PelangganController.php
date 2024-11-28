@@ -59,8 +59,8 @@ class PelangganController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
-            'nomor_telepon' => 'required|numeric|unique:pelanggan,nomor_telepon',
-            'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan',
+            'nomor_telepon' => 'required|numeric|unique:pelanggan,nomor_telepon'. $id_pelanggan,
+            'email_pelanggan' => 'required|email|unique:pelanggan,email_pelanggan'. $id_pelanggan,
         ], [
             'nomor_telepon.unique' => 'The phone number has been taken.',
             'nomor_telepon.numeric' => 'The phone number field must be a number.',

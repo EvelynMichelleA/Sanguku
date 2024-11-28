@@ -64,10 +64,10 @@ class MenuController extends Controller
         $menu = Menu::findOrFail($id_menu);
 
         $request->validate([
-            'nama_menu' => 'required|string|max:255|unique:menu,nama_menu',
+            'nama_menu' => 'required|string|max:255|unique:menu,nama_menu'.$id_menu,
             'jenis_menu' => 'required|string',
             'harga' => 'required|numeric',
-            'gambar_menu' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gambar_menu' => 'image|mimes:jpeg,png,jpg,gif|max:2048'.$id_menu,
         ], [
             'harga.numeric' => 'The price field must be a number.',
             'nama_menu.unique' => 'The name has been taken.',
