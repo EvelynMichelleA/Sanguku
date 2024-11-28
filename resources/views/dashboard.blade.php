@@ -62,11 +62,20 @@
 
         .filter-container select,
         .filter-container input {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            /* display: flex;
+            justify-content: space-between; */
+            align-items: center;
             padding: 8px;
             font-size: 14px;
             border-radius: 6px;
             border: 1px solid #ddd;
             background-color: #fff;
+            margin-bottom: 20px;
+            width: 150px;
         }
 
         button {
@@ -253,7 +262,9 @@
                     <a href="{{ route('profile.edit') }}">Profile Edit</a>
                 </div>
             </div>
-            {{-- <div class="filter-container">
+        </div>
+        
+    {{-- <div class="filter-container">
                 <form method="GET" action="{{ route('dashboard') }}">
                     <select name="bulan" id="bulan">
                         <option value="">Pilih Bulan</option>
@@ -270,11 +281,9 @@
                                 {{ $year }}</option>
                         @endforeach
                     </select>
-
                     <button type="submit">Filter</button>
                 </form>
             </div> --}}
-        </div>
 
         <!-- Widget Containers -->
         <div class="widget-container">
