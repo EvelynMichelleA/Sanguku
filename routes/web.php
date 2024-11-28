@@ -14,6 +14,7 @@ use App\Http\Controllers\{
     LaporanTransaksiPenjualanController
 };
 use App\Models\TransaksiPenjualan;
+use App\Models\Pengeluaran;
 use Carbon\Carbon;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Middleware\CheckRole;
@@ -42,7 +43,23 @@ Route::get('/dashboard', function () {
         $dataPenjualan[] = $penjualanBulanan[$i] ?? 0;
     }
 
-    return view('dashboard', compact('dataPenjualan'));
+    $pengeluaranBulanan = Pengeluaran::selectRaw("strftime('%m', tanggal_pengeluaran) as bulan, SUM(total_pengeluaran) as total")
+        ->whereYear('tanggal_pengeluaran', Carbon::now()->year)
+        ->groupBy('bulan')
+        ->orderBy('bulan')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [(int)$item->bulan => $item->total];
+        })
+        ->toArray();
+
+    // Pastikan semua bulan memiliki data, jika tidak ada, set menjadi 0
+    $dataPengeluaran = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $dataPengeluaran[] = $pengeluaranBulanan[$i] ?? 0;
+    }
+
+    return view('dashboard', compact('dataPenjualan', 'dataPengeluaran'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route yang bisa diakses oleh semua role

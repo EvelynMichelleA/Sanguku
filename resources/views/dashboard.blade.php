@@ -1,14 +1,34 @@
 @php
     use App\Models\Pelanggan;
     use App\Models\TransaksiPenjualan;
+    use App\Models\Pengeluaran;
+    use Carbon\Carbon;
 
-    // Mengambil data secara langsung di Blade
+    // Ambil data untuk dashboard
     $jumlahPelanggan = Pelanggan::count();
     $jumlahTransaksi = TransaksiPenjualan::count();
-    $totalPendapatan = TransaksiPenjualan::sum('total_biaya'); // Sesuaikan dengan kolom pendapatan
+    $totalPendapatan = TransaksiPenjualan::sum('total_biaya');
+    $totalPengeluaran = TransaksiPenjualan::sum('total_pengeluaran');
+    $bulanIniPendapatan = TransaksiPenjualan::whereMonth('tanggal_transaksi', Carbon::now()->month)->sum('total_biaya');
+    $tahunIniPendapatan = TransaksiPenjualan::whereYear('tanggal_transaksi', Carbon::now()->year)->sum('total_biaya');
+
+    // Menghitung total pengeluaran
+    $totalPengeluaran = Pengeluaran::sum('total_pengeluaran');
+    $bulanIniPengeluaran = Pengeluaran::whereMonth('tanggal_pengeluaran', Carbon::now()->month)->sum(
+        'total_pengeluaran',
+    );
+    $tahunIniPengeluaran = Pengeluaran::whereYear('tanggal_pengeluaran', Carbon::now()->year)->sum(
+        'total_pengeluaran',
+    );
+
+    // Menghitung balance (profit/loss)
+    $balance = $totalPendapatan - $totalPengeluaran;
+    $profit = $balance >= 0 ? $balance : 0; // Profit
+    $loss = $balance < 0 ? abs($balance) : 0; // Loss
 @endphp
-@extends('layouts.app') <!-- Sesuaikan dengan layout -->
-{{-- @section('content') --}}
+
+@extends('layouts.app')
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,119 +36,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SANGUKU</title>
-
-    <!-- Link Google Fonts untuk Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Terapkan font Poppins ke seluruh halaman */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #cbe6fe;
+            background-color: #f0f4f8;
+            color: #333;
         }
 
         .header {
             font-size: 28px;
             font-weight: bold;
             color: #1e3a8a;
-            /* Warna teks Dashboard */
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        /* Profile dropdown */
-        .profile-menu {
-            position: relative;
-            display: inline-block;
-        }
-
-        .profile-button {
-            color: #1e3a8a;
-            /* Warna sama dengan Dashboard */
-            font-size: 16px;
-            cursor: pointer;
+        .filter-container {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 15px;
         }
 
-        .profile-button:hover {
-            color: #3b82f6;
-            /* Warna biru saat hover */
+        .filter-container select,
+        .filter-container input {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: #fff;
         }
 
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
+        button {
+            padding: 8px 15px;
             background-color: #3b82f6;
-            color: #ffffff;
+            color: white;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .widget-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .widget-card {
+            flex: 1;
+            min-width: 230px;
+            background-color: #fff;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            min-width: 120px;
-            padding: 10px 0;
-            z-index: 1000;
-        }
-
-        .dropdown-menu a {
-            color: #ffffff;
-            text-decoration: none;
-            padding: 10px 20px;
-            display: block;
-            font-size: 14px;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #80a4ff;
-        }
-
-        .card-container {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .card {
+        .widget-card h3 {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .widget-card p {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .widget-card .icon {
+            font-size: 40px;
+            color: #3b82f6;
+        }
+
+        .balance-card {
             flex: 1;
-            min-width: 200px;
+            min-width: 230px;
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-top: 30px;
+            width: 31%;
+            /* Menambahkan tinggi tetap pada balance card */
         }
 
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            background-color: #3b82f6;
-            color: #fff;
-            padding: 12px;
-            border-radius: 50%;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-        }
-
-        .card-content h3 {
-            font-size: 18px;
-            margin: 0;
-            color: #666;
-        }
-
-        .card-content p {
-            font-size: 24px;
+        .balance-card h3 {
+            font-size: 20px;
             font-weight: bold;
-            margin: 0;
             color: #1e3a8a;
+            margin-bottom: 100px;
         }
 
         .chart-title {
@@ -136,7 +146,6 @@
             font-weight: bold;
             color: #1e3a8a;
             margin-bottom: 10px;
-            margin-left: 20px;
         }
 
         .chart-container {
@@ -144,115 +153,188 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 60%;
-            margin-left: 20px;
+            width: 69%;
+            margin-top: 30px;
+        }
+
+        .contents {
+            display: flex;
+            /* Flexbox untuk menempatkan chart bersebelahan */
+            justify-content: space-between;
+            gap: 20px;
+            /* Memberikan jarak antara kedua chart */
+            flex-wrap: wrap;
+            /* Menjaga responsivitas */
         }
     </style>
 </head>
 
 <body>
-
-    <!-- Content -->
     <div class="content">
         <div class="header">
-            Dashboard
-            <!-- Profile Dropdown -->
-            <div class="profile-menu">
-                <div class="profile-button" onclick="toggleDropdown()">
-                    {{ auth()->user()->name }} <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
-                </div>
-                <div class="dropdown-menu" id="profileDropdown">
-                    <a href="{{ route('profile.edit') }}">Profile Edit</a>
-                </div>
+            <span>Dashboard</span>
+            <div class="filter-container">
+                <form method="GET" action="{{ route('dashboard') }}">
+                    <select name="bulan" id="bulan">
+                        <option value="">-- Pilih Bulan --</option>
+                        @foreach (range(1, 12) as $month)
+                            <option value="{{ $month }}" @if (request('bulan') == $month) selected @endif>
+                                {{ \Carbon\Carbon::create()->month($month)->format('F') }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="tahun" id="tahun">
+                        <option value="">-- Pilih Tahun --</option>
+                        @foreach (range(2020, Carbon::now()->year) as $year)
+                            <option value="{{ $year }}" @if (request('tahun') == $year) selected @endif>
+                                {{ $year }}</option>
+                        @endforeach
+                    </select>
+
+                    <button type="submit">Filter</button>
+                </form>
             </div>
         </div>
 
-        <!-- Card Container -->
-        <div class="card-container">
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-users"></i></div>
-                <div class="card-content">
+        <!-- Widget Containers -->
+        <div class="widget-container">
+            <div class="widget-card">
+                <div>
                     <h3>Pelanggan</h3>
                     <p>{{ $jumlahPelanggan }}</p>
                 </div>
+                <div><i class="fas fa-users icon"></i></div>
             </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
-                <div class="card-content">
-                    <h3>Pendapatan</h3>
+            <div class="widget-card">
+                <div>
+                    <h3>Pendapatan Bulan Ini</h3>
+                    <p>Rp {{ number_format($bulanIniPendapatan, 0, ',', '.') }}</p>
+                </div>
+                <div><i class="fas fa-wallet icon"></i></div>
+            </div>
+            <div class="widget-card">
+                <div>
+                    <h3>Total Pendapatan</h3>
                     <p>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</p>
                 </div>
+                <div><i class="fas fa-dollar-sign icon"></i></div>
             </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
-                <div class="card-content">
-                    <h3>Transaksi</h3>
-                    <p>{{ $jumlahTransaksi }}</p>
+
+        </div>
+
+        <!-- Grafik Penjualan Bulanan -->
+        <div class="contents">
+            <!-- Grafik Penjualan Bulanan -->
+            <div class="chart-container">
+                <div class="chart-title">Penjualan Bulan Ini</div>
+                <canvas id="salesChart"></canvas>
+                <!-- Menambahkan height untuk membuat grafik lebih pendek -->
+            </div>
+
+            <!-- Balance (Profit / Loss) -->
+            <div class="balance-card">
+                <div>
+                    <h3>Balance (Profit / Loss)</h3>
+                    <canvas id="balanceChart" height="50"></canvas> <!-- Menambahkan height untuk donut chart -->
                 </div>
             </div>
         </div>
-
-        <!-- Judul Grafik Penjualan Bulanan -->
-        <div class="chart-title">Penjualan Tahun Ini</div>
-
-        <!-- Grafik Penjualan Bulanan -->
         <div class="chart-container">
-            <canvas id="salesChart"></canvas>
+            <div class="chart-title">Pengeluaran Bulan Ini</div>
+            <canvas id="pengeluaranChart"></canvas>
+            <!-- Menambahkan height untuk membuat grafik lebih pendek -->
         </div>
-    </div>
 
-    <!-- Script Chart.js dan Toggle Dropdown -->
-    <script>
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        const salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [
-                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                ],
-                datasets: [{
-                    label: 'Total Pendapatan (Rp)',
-                    data: @json($dataPenjualan), // Data dari route
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'Rp ' + value.toLocaleString();
+        <script>
+            const ctxSales = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(ctxSales, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                    ],
+                    datasets: [{
+                        label: 'Pendapatan Bulanan (Rp)',
+                        data: @json($dataPenjualan), // Data pendapatan dari controller
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + value.toLocaleString();
+                                }
                             }
                         }
                     }
+                }
+            });
+            const ctxPengeluaran = document.getElementById('pengeluaranChart').getContext('2d');
+            const pengeluaranChart = new Chart(ctxPengeluaran, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                    ],
+                    datasets: [{
+                        label: 'Pengeluaran Bulanan (Rp)',
+                        data: @json($dataPengeluaran), // Data pendapatan dari controller
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 5
+                    }]
                 },
-                plugins: {
-                    legend: {
-                        display: false
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + value.toLocaleString();
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        function toggleDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.closest('.profile-menu')) {
-                const dropdown = document.getElementById('profileDropdown');
-                if (dropdown.style.display === 'block') {
-                    dropdown.style.display = 'none';
+            const ctxBalance = document.getElementById('balanceChart').getContext('2d');
+            const balanceChart = new Chart(ctxBalance, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Profit', 'Loss'],
+                    datasets: [{
+                        data: [{{ $profit }}, {{ $loss }}],
+                        backgroundColor: ['#34D399', '#F87171'],
+                        borderColor: ['#fff', '#fff'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return 'Rp ' + tooltipItem.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        };
-    </script>
+            });
+        </script>
 </body>
 
 </html>
-{{-- @endsection --}}
