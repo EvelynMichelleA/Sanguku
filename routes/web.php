@@ -21,6 +21,9 @@ use App\Models\Menu;
 use Carbon\Carbon;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Middleware\CheckRole;
+use App\Http\Controllers\DashboardController;
+
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
 // Redirect to login
 Route::get('/', function () {

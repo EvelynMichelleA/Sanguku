@@ -263,28 +263,15 @@
                 </div>
             </div>
         </div>
+        <form method="GET" action="{{ route('dashboard') }}">
+            <select name="tahun" id="tahun" onchange="this.form.submit()">
+                <option value="">Pilih Tahun</option>
+                @foreach (range(2020, Carbon::now()->year) as $year)
+                    <option value="{{ $year }}" @if (request('tahun') == $year) selected @endif>{{ $year }}</option>
+                @endforeach
+            </select>
+        </form>        
         
-    {{-- <div class="filter-container">
-                <form method="GET" action="{{ route('dashboard') }}">
-                    <select name="bulan" id="bulan">
-                        <option value="">Pilih Bulan</option>
-                        @foreach (range(1, 12) as $month)
-                            <option value="{{ $month }}" @if (request('bulan') == $month) selected @endif>
-                                {{ \Carbon\Carbon::create()->month($month)->format('F') }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="tahun" id="tahun">
-                        <option value="">Pilih Tahun</option>
-                        @foreach (range(2020, Carbon::now()->year) as $year)
-                            <option value="{{ $year }}" @if (request('tahun') == $year) selected @endif>
-                                {{ $year }}</option>
-                        @endforeach
-                    </select>
-                    <button type="submit">Filter</button>
-                </form>
-            </div> --}}
-
         <!-- Widget Containers -->
         <div class="widget-container">
             <div class="widget-card">
