@@ -23,65 +23,14 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Middleware\CheckRole;
 use App\Http\Controllers\DashboardController;
 
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-
 // Redirect to login
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
 // Dashboard
-Route::get('/dashboard', function () {
-    // Hitung total penjualan per bulan untuk tahun ini menggunakan SQLite-compatible syntax
-    $penjualanBulanan = TransaksiPenjualan::selectRaw("strftime('%m', tanggal_transaksi) as bulan, SUM(total_biaya) as total")
-        ->whereYear('tanggal_transaksi', Carbon::now()->year)
-        ->groupBy('bulan')
-        ->orderBy('bulan')
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [(int)$item->bulan => $item->total];
-        })
-        ->toArray();
-
-    // Pastikan semua bulan memiliki data, jika tidak ada, set menjadi 0
-    $dataPenjualan = [];
-    for ($i = 1; $i <= 12; $i++) {
-        $dataPenjualan[] = $penjualanBulanan[$i] ?? 0;
-    }
-
-    $pengeluaranBulanan = Pengeluaran::selectRaw("strftime('%m', tanggal_pengeluaran) as bulan, SUM(total_pengeluaran) as total")
-        ->whereYear('tanggal_pengeluaran', Carbon::now()->year)
-        ->groupBy('bulan')
-        ->orderBy('bulan')
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [(int)$item->bulan => $item->total];
-        })
-        ->toArray();
-
-    // Pastikan semua bulan memiliki data, jika tidak ada, set menjadi 0
-    $dataPengeluaran = [];
-    for ($i = 1; $i <= 12; $i++) {
-        $dataPengeluaran[] = $pengeluaranBulanan[$i] ?? 0;
-    }
-
-    // Hitung menu terlaris
-    $menuTerlaris = DetailTransaksiPenjualan::with('menu')
-        ->select('id_menu', DB::raw('count(id_menu) as total_penjualan'))
-        ->groupBy('id_menu')
-        ->orderByDesc('total_penjualan')
-        ->limit(5)
-        ->get();
-
-    // Ambil nama menu dan jumlah penjualannya
-    $menuNames = $menuTerlaris->map(function ($item) {
-        return $item->menu->nama_menu; // Ambil nama menu dari relasi
-    })->toArray();
-
-    $menuSales = $menuTerlaris->pluck('total_penjualan')->toArray();
-
-    return view('dashboard', compact('dataPenjualan', 'dataPengeluaran', 'menuNames', 'menuSales'));
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'dashboard']
+)->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route yang bisa diakses oleh semua role
 Route::middleware('auth')->group(function () {

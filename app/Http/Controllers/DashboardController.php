@@ -6,27 +6,56 @@ use App\Models\Pelanggan;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 use App\Models\TransaksiPenjualan;
+use App\Models\DetailTransaksiPenjualan;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller{
 public function dashboard(Request $request)
 {
     // Ambil filter tahun dari request atau default ke tahun saat ini
-    $tahunDipilih = $request->get('tahun', Carbon::now()->year);
+    $tahunDipilih =  $request->input('tahun', date('Y'));
+
+    // Hitung total penjualan per bulan untuk tahun ini menggunakan SQLite-compatible syntax
+    $penjualanBulanan = TransaksiPenjualan::selectRaw("strftime('%m', tanggal_transaksi) as bulan, SUM(total_biaya) as total")
+        ->whereYear('tanggal_transaksi', $tahunDipilih)
+        ->groupBy('bulan')
+        ->orderBy('bulan')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [(int)$item->bulan => $item->total];
+        })
+        ->toArray();
+
+    // Pastikan semua bulan memiliki data, jika tidak ada, set menjadi 0
+    $dataPenjualan = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $dataPenjualan[] = $penjualanBulanan[$i] ?? 0;
+    }
+
+    $pengeluaranBulanan = Pengeluaran::selectRaw("strftime('%m', tanggal_pengeluaran) as bulan, SUM(total_pengeluaran) as total")
+        ->whereYear('tanggal_pengeluaran', $tahunDipilih)
+        ->groupBy('bulan')
+        ->orderBy('bulan')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [(int)$item->bulan => $item->total];
+        })
+        ->toArray();
+    
+    // Pastikan semua bulan memiliki data, jika tidak ada, set menjadi 0
+    $dataPengeluaran = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $dataPengeluaran[] = $pengeluaranBulanan[$i] ?? 0;
+    }
 
     // Ambil data untuk dashboard
-    $jumlahPelanggan = Pelanggan::count();
+    $jumlahPelanggan = Pelanggan::whereYear('created_at', $tahunDipilih)->count();
+    $jumlahMenu = Menu::whereYear('created_at', $tahunDipilih)->count();
         $jumlahTransaksi = TransaksiPenjualan::whereYear('tanggal_transaksi', $tahunDipilih)->count();
         $totalPendapatan = TransaksiPenjualan::whereYear('tanggal_transaksi', $tahunDipilih)->sum('total_biaya');
-        $bulanIniPendapatan = TransaksiPenjualan::whereYear('tanggal_transaksi', $tahunDipilih)
-            ->whereMonth('tanggal_transaksi', Carbon::now()->month)
-            ->sum('total_biaya');
-
+       
         // Menghitung total pengeluaran
         $totalPengeluaran = Pengeluaran::whereYear('tanggal_pengeluaran', $tahunDipilih)->sum('total_pengeluaran');
-        $bulanIniPengeluaran = Pengeluaran::whereYear('tanggal_pengeluaran', $tahunDipilih)
-            ->whereMonth('tanggal_pengeluaran', Carbon::now()->month)
-            ->sum('total_pengeluaran');
 
     // Menghitung balance (profit/loss)
     $balance = $totalPendapatan - $totalPengeluaran;
@@ -47,27 +76,28 @@ public function dashboard(Request $request)
             ->whereMonth('tanggal_pengeluaran', $month)
             ->sum('total_pengeluaran');
     }
-
-    // Menu terlaris
-    $menuSalesData = DB::table('detail_transaksi_penjualans')
-        ->select('id_menu', DB::raw('COUNT(id_menu) as total_sales'))
+    
+    // Hitung menu terlaris
+    $menuTerlaris = DetailTransaksiPenjualan::with('menu')
+        ->select('id_menu', DB::raw('sum(jumlah) as total_penjualan'))
         ->groupBy('id_menu')
-        ->orderByDesc('total_sales')
-        ->limit(10)
+        ->orderByDesc('total_penjualan')
+        ->limit(5)
         ->get();
 
-    // Ambil nama menu berdasarkan id_menu
-    $menuNames = Menu::whereIn('id', $menuSalesData->pluck('id_menu'))->pluck('nama_menu')->toArray();
-    $menuSales = $menuSalesData->pluck('total_sales')->toArray();
+    // Ambil nama menu dan jumlah penjualannya
+    $menuNames = $menuTerlaris->map(function ($item) {
+        return $item->menu->nama_menu; // Ambil nama menu dari relasi
+    })->toArray();
+
+    $menuSales = $menuTerlaris->pluck('total_penjualan')->toArray();
 
     // Kirim data ke view
     return view('dashboard', [
         'jumlahPelanggan' => $jumlahPelanggan,
         'jumlahTransaksi' => $jumlahTransaksi,
         'totalPendapatan' => $totalPendapatan,
-        'bulanIniPendapatan' => $bulanIniPendapatan,
         'totalPengeluaran' => $totalPengeluaran,
-        'bulanIniPengeluaran' => $bulanIniPengeluaran,
         'balance' => $balance,
         'profit' => $profit,
         'loss' => $loss,
@@ -76,5 +106,6 @@ public function dashboard(Request $request)
         'menuNames' => $menuNames,
         'menuSales' => $menuSales,
         'tahunDipilih' => $tahunDipilih,
+        'jumlahMenu' => $jumlahMenu,
     ]);
 }}

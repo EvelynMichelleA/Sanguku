@@ -1,28 +1,5 @@
 @php
-    use App\Models\Pelanggan;
-    use App\Models\TransaksiPenjualan;
-    use App\Models\Pengeluaran;
     use Carbon\Carbon;
-
-    // Ambil data untuk dashboard
-    $jumlahPelanggan = Pelanggan::count();
-    $jumlahTransaksi = TransaksiPenjualan::count();
-    $totalPendapatan = TransaksiPenjualan::sum('total_biaya');
-    $totalPengeluaran = TransaksiPenjualan::sum('total_pengeluaran');
-    $bulanIniPendapatan = TransaksiPenjualan::whereMonth('tanggal_transaksi', Carbon::now()->month)->sum('total_biaya');
-    $tahunIniPendapatan = TransaksiPenjualan::whereYear('tanggal_transaksi', Carbon::now()->year)->sum('total_biaya');
-
-    // Menghitung total pengeluaran
-    $totalPengeluaran = Pengeluaran::sum('total_pengeluaran');
-    $bulanIniPengeluaran = Pengeluaran::whereMonth('tanggal_pengeluaran', Carbon::now()->month)->sum(
-        'total_pengeluaran',
-    );
-    $tahunIniPengeluaran = Pengeluaran::whereYear('tanggal_pengeluaran', Carbon::now()->year)->sum('total_pengeluaran');
-
-    // Menghitung balance (profit/loss)
-    $balance = $totalPendapatan - $totalPengeluaran;
-    $profit = $balance >= 0 ? $balance : 0; // Profit
-    $loss = $balance < 0 ? abs($balance) : 0; // Loss
 @endphp
 
 @extends('layouts.app')
@@ -200,8 +177,8 @@
             /* Menambah padding agar baris tabel lebih renggang */
         }
 
-          /* Profile dropdown */
-          .profile-menu {
+        /* Profile dropdown */
+        .profile-menu {
             position: relative;
             display: inline-block;
         }
@@ -246,7 +223,6 @@
         .dropdown-menu a:hover {
             background-color: #80a4ff;
         }
-
     </style>
 </head>
 
@@ -267,31 +243,38 @@
             <select name="tahun" id="tahun" onchange="this.form.submit()">
                 <option value="">Pilih Tahun</option>
                 @foreach (range(2020, Carbon::now()->year) as $year)
-                    <option value="{{ $year }}" @if (request('tahun') == $year) selected @endif>{{ $year }}</option>
+                    <option value="{{ $year }}" {{ $year == ($tahunDipilih ?? '') ? 'selected' : '' }}>
+                        {{ $year }}</option>
                 @endforeach
             </select>
-        </form>        
-        
+        </form>
+
         <!-- Widget Containers -->
         <div class="widget-container">
             <div class="widget-card">
                 <div>
-                    <h3>Pelanggan</h3>
-                    <p>{{ $jumlahPelanggan }}</p>
+                    <a href="{{ route('pelanggan.index') }}">
+                        <h3>Pelanggan</h3>
+                        <p>{{ $jumlahPelanggan }}</p>
+                    </a>
                 </div>
                 <div><i class="fas fa-users icon"></i></div>
             </div>
             <div class="widget-card">
                 <div>
-                    <h3>Pendapatan Bulan Ini</h3>
-                    <p>Rp {{ number_format($bulanIniPendapatan, 0, ',', '.') }}</p>
+                    <a href="{{ route('menu.index') }}">
+                        <h3>Total Menu</h3>
+                        <p>{{ $jumlahMenu }}</p>
+                    </a>
                 </div>
-                <div><i class="fas fa-wallet icon"></i></div>
+                <div><i class="fas fa-utensils icon"></i></div>
             </div>
             <div class="widget-card">
                 <div>
-                    <h3>Total Pendapatan</h3>
-                    <p>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</p>
+                    <a href="{{ route('transaksi-penjualan.index') }}">
+                        <h3>Total Pendapatan</h3>
+                        <p>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</p>
+                    </a>
                 </div>
                 <div><i class="fas fa-dollar-sign icon"></i></div>
             </div>
@@ -300,14 +283,14 @@
         <!-- Grafik Penjualan Bulanan -->
         <div class="contents">
             <div class="chart-container">
-                <div class="chart-title">Penjualan Bulan Ini</div>
+                <div class="chart-title">Penjualan</div>
                 <canvas id="salesChart"></canvas>
             </div>
 
             <div class="balance-card">
                 <div>
                     <h3>Balance (Profit / Loss)</h3>
-                    <canvas id="balanceChart" ></canvas>
+                    <canvas id="balanceChart"></canvas>
                 </div>
             </div>
         </div>
@@ -315,7 +298,7 @@
         <!-- Grafik Pengeluaran dan Menu Terlaris -->
         <div class="contents">
             <div class="chart-container">
-                <div class="chart-title">Pengeluaran Bulan Ini</div>
+                <div class="chart-title">Pengeluaran</div>
                 <canvas id="pengeluaranChart"></canvas>
             </div>
 
@@ -459,6 +442,7 @@
                 }
             }
         });
+
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
