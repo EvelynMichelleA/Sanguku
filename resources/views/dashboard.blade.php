@@ -33,26 +33,44 @@
 
         .filter-container {
             display: flex;
-            align-items: center;
             gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            justify-content: flex-start;
+            /* Membuat jarak antara filter dan elemen lain */
         }
 
         .filter-container select,
         .filter-container input {
-            font-size: 28px;
+            font-size: 16px;
+            /* Ukuran font lebih kecil agar lebih sesuai */
             font-weight: bold;
             color: #1e3a8a;
-            margin-bottom: 20px;
-            /* display: flex;
-            justify-content: space-between; */
-            align-items: center;
-            padding: 8px;
-            font-size: 14px;
+            padding: 8px 12px;
+            /* Memberikan padding agar lebih nyaman */
             border-radius: 6px;
             border: 1px solid #ddd;
             background-color: #fff;
-            margin-bottom: 20px;
-            width: 150px;
+            transition: all 0.3s ease;
+            /* Animasi saat interaksi */
+        }
+
+        .filter-container select:focus,
+        .filter-container input:focus {
+            border-color: #3b82f6;
+            /* Ubah warna border saat fokus */
+            outline: none;
+            /* Hilangkan outline standar */
+        }
+
+        .filter-container select:hover,
+        .filter-container input:hover {
+            background-color: #f0f4f8;
+            /* Ganti warna background saat hover */
+        }
+
+        .filter-container select option {
+            padding: 10px;
         }
 
         button {
@@ -111,26 +129,21 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-top: 30px;
             width: 31%;
-            justify-content: center;
+            position: relative;
+            flex-direction: column;
+            height: 100%;
         }
 
         .balance-card h3 {
             font-size: 20px;
             font-weight: bold;
             color: #1e3a8a;
-            margin-bottom: 30px;
-            margin-right: 160px;
-        }
-
-        .chart-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1e3a8a;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         .chart-container {
@@ -141,6 +154,16 @@
             flex: 1;
             width: 69%;
             margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 10px;
         }
 
         .contents {
@@ -148,7 +171,7 @@
             justify-content: space-between;
             gap: 20px;
             flex-wrap: wrap;
-            /* Menjaga elemen-elemen responsif */
+            align-items: flex-start;
         }
 
         .chart-container table th,
@@ -223,6 +246,24 @@
         .dropdown-menu a:hover {
             background-color: #80a4ff;
         }
+
+        #balanceChart {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            margin-bottom: 50px
+        }
+
+        #balanceDescription {
+            position: absolute;
+            top: 55%;
+            left: 53%;
+            transform: translate(-60%, -50%);
+            font-size: 16px;
+            font-weight: bold;
+            color: #3b82f6;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -240,15 +281,16 @@
             </div>
         </div>
         <form method="GET" action="{{ route('dashboard') }}">
-            <select name="tahun" id="tahun" onchange="this.form.submit()">
-                <option value="">Pilih Tahun</option>
-                @foreach (range(2020, Carbon::now()->year) as $year)
-                    <option value="{{ $year }}" {{ $year == ($tahunDipilih ?? '') ? 'selected' : '' }}>
-                        {{ $year }}</option>
-                @endforeach
-            </select>
+            <div class="filter-container">
+                <select name="tahun" id="tahun" onchange="this.form.submit()">
+                    <option value="">Pilih Tahun</option>
+                    @foreach (range(2020, Carbon::now()->year) as $year)
+                        <option value="{{ $year }}" {{ $year == ($tahunDipilih ?? '') ? 'selected' : '' }}>
+                            {{ $year }}</option>
+                    @endforeach
+                </select>
+            </div>
         </form>
-
         <!-- Widget Containers -->
         <div class="widget-container">
             <div class="widget-card">
@@ -291,6 +333,8 @@
                 <div>
                     <h3>Balance (Profit / Loss)</h3>
                     <canvas id="balanceChart"></canvas>
+                    <div id="balanceDescription">
+                    </div>
                 </div>
             </div>
         </div>
@@ -359,13 +403,37 @@
             }
         });
 
+        // Ambil data dari controller
+        const totalPendapatan = {{ $totalPendapatan }};
+        const totalPengeluaran = {{ $totalPengeluaran }};
+        const profitLoss = totalPendapatan - totalPengeluaran;
+
+        // Hitung persentase profit atau loss
+        let persentase = 0;
+        if (totalPendapatan > 0) {
+            persentase = ((profitLoss / totalPendapatan) * 100).toFixed(2); // Persentase Profit/Loss
+        }
+
+        // Menambahkan keterangan profit atau loss dalam persentase
+        const balanceDescription = document.getElementById('balanceDescription');
+        if (balanceDescription) {
+            if (profitLoss > 0) {
+                balanceDescription.textContent = 'Profit: ' + persentase + '%';
+            } else if (profitLoss < 0) {
+                balanceDescription.textContent = 'Loss: ' + Math.abs(persentase) + '%';
+            } else {
+                balanceDescription.textContent = 'Break-even';
+            }
+        }
+
+        // Chart.js untuk Balance (Profit / Loss)
         const ctxBalance = document.getElementById('balanceChart').getContext('2d');
         const balanceChart = new Chart(ctxBalance, {
             type: 'doughnut',
             data: {
-                labels: ['Profit', 'Loss'],
+                labels: ['Total Pendapatan', 'Total Pengeluaran'],
                 datasets: [{
-                    data: [{{ $profit }}, {{ $loss }}],
+                    data: [totalPendapatan, totalPengeluaran],
                     backgroundColor: ['#3b82f6', '#F87171'],
                     borderColor: ['#fff', '#fff'],
                     borderWidth: 1
@@ -373,7 +441,7 @@
             },
             options: {
                 responsive: true,
-                cutout: '70%',
+                cutout: '70%', // Membuat tengah chart menjadi kosong
                 plugins: {
                     legend: {
                         position: 'top',
