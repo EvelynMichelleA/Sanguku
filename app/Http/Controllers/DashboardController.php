@@ -34,7 +34,7 @@ class DashboardController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $dataPenjualan[] = $penjualanBulanan[$i] ?? 0;
         }
-
+        $penjualanKosong = count($penjualanBulanan) === 0;
         $pengeluaranBulanan = Pengeluaran::selectRaw("strftime('%m', tanggal_pengeluaran) as bulan, SUM(total_pengeluaran) as total")
             ->whereYear('tanggal_pengeluaran', $tahunDipilih)
             ->groupBy('bulan')
@@ -50,6 +50,7 @@ class DashboardController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $dataPengeluaran[] = $pengeluaranBulanan[$i] ?? 0;
         }
+        $pengeluaranKosong = count($pengeluaranBulanan) === 0;
 
         // Ambil data untuk dashboard
         $jumlahPelanggan = Pelanggan::whereYear('created_at', $tahunDipilih)->count();
@@ -65,10 +66,13 @@ class DashboardController extends Controller
         $profit = $balance >= 0 ? $balance : 0; // Profit
         $loss = $balance < 0 ? abs($balance) : 0; // Loss
 
+        // Cek jika data balance kosong (profit dan loss)
+        $balanceKosong = $balance == 0;
+
         // Menghitung persentase Profit dan Loss berdasarkan totalPendapatan
         $profitPercentage = $totalPendapatan > 0 ? ($profit / $totalPengeluaran) * 100 : 0;
         $lossPercentage = $totalPengeluaran > 0 ? ($loss / $totalPengeluaran) * 100 : 0;
-
+        $noData = $jumlahTransaksi == 0 && $jumlahMenu == 0 && $jumlahPelanggan == 0;
         // Ambil data penjualan dan pengeluaran bulanan untuk grafik
         $dataPenjualan = [];
         for ($month = 1; $month <= 12; $month++) {
@@ -87,10 +91,14 @@ class DashboardController extends Controller
         // Hitung menu terlaris
         $menuTerlaris = DetailTransaksiPenjualan::with('menu')
             ->select('id_menu', DB::raw('sum(jumlah) as total_penjualan'))
+            ->whereYear('created_at', $tahunDipilih)
             ->groupBy('id_menu')
             ->orderByDesc('total_penjualan')
             ->limit(5)
             ->get();
+
+        // Cek jika data menu terlaris kosong
+        $menuTerlarisKosong = $menuTerlaris->isEmpty();
 
         // Ambil nama menu dan jumlah penjualannya
         $menuNames = $menuTerlaris->map(function ($item) {
@@ -98,7 +106,7 @@ class DashboardController extends Controller
         })->toArray();
 
         $menuSales = $menuTerlaris->pluck('total_penjualan')->toArray();
-    
+
         // Kirim data ke view
         return view('dashboard', [
             'jumlahPelanggan' => $jumlahPelanggan,
@@ -108,14 +116,19 @@ class DashboardController extends Controller
             'balance' => $balance,
             'profit' => $profit,
             'loss' => $loss,
-            'profitPercentage' =>$profitPercentage, 
-            'lossPercentage' =>$lossPercentage, 
+            'balanceKosong' => $balanceKosong,
+            'profitPercentage' => $profitPercentage,
+            'lossPercentage' => $lossPercentage,
             'dataPenjualan' => $dataPenjualan,
             'dataPengeluaran' => $dataPengeluaran,
             'menuNames' => $menuNames,
             'menuSales' => $menuSales,
             'tahunDipilih' => $tahunDipilih,
             'jumlahMenu' => $jumlahMenu,
+            'menuTerlarisKosong' => $menuTerlarisKosong,
+            'noData' => $noData,
+            'penjualanKosong' => $penjualanKosong,
+            'pengeluaranKosong' => $pengeluaranKosong,
         ]);
     }
 }

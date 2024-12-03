@@ -264,6 +264,17 @@
             color: #3b82f6;
             text-align: center;
         }
+
+        .no-data-message {
+            background-color: #f8d7da; /* Warna latar belakang merah muda */
+    color: #721c24; /* Warna teks merah gelap */
+    padding: 10px 20px;
+    border-radius: 6px;
+    margin-top: 20px;
+    font-size: 16px;
+    text-align: center;
+    border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 
@@ -291,6 +302,7 @@
                 </select>
             </div>
         </form>
+
         <!-- Widget Containers -->
         <div class="widget-container">
             <div class="widget-card">
@@ -326,15 +338,27 @@
         <div class="contents">
             <div class="chart-container">
                 <div class="chart-title">Penjualan</div>
+                @if ($penjualanKosong)
+                    <div class="no-data-message">
+                        <p>Data Penjualan tidak ditemukan untuk tahun {{ $tahunDipilih }}.</p>
+                    </div>
+                @else 
                 <canvas id="salesChart"></canvas>
+                @endif
             </div>
 
             <div class="balance-card">
                 <div>
                     <h3>Balance (Profit / Loss)</h3>
+                    @if ($balanceKosong)
+                    <div class="no-data-message">
+                        <p>Data balance (profit/loss) tidak tersedia untuk tahun {{ $tahunDipilih }}.</p>
+                    </div>
+                @else
                     <canvas id="balanceChart"></canvas>
                     <div id="balanceDescription">
                     </div>
+                @endif 
                 </div>
             </div>
         </div>
@@ -343,30 +367,43 @@
         <div class="contents">
             <div class="chart-container">
                 <div class="chart-title">Pengeluaran</div>
+                @if ($pengeluaranKosong)
+                    <div class="no-data-message">
+                        <p>Data Pengeluaran tidak ditemukan untuk tahun {{ $tahunDipilih }}.</p>
+                    </div>
+                @else
                 <canvas id="pengeluaranChart"></canvas>
+                @endif
             </div>
 
             <div class="chart-container">
                 <div class="chart-title">Menu Terlaris</div>
-                <table class="table-auto w-full text-sm text-left text-gray-500">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-2 bg-gray-200">No</th>
-                            <th class="px-4 py-2 bg-gray-200">Menu</th>
-                            <th class="px-4 py-2 bg-gray-200">Jumlah Penjualan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($menuNames as $index => $menu)
-                            <tr class="border-t">
-                                <td class="px-4 py-2">{{ $index + 1 }}</td>
-                                <td class="px-4 py-2">{{ $menu }}</td>
-                                <td class="px-4 py-2">{{ $menuSales[$index] }} pcs</td>
+            
+                @if ($menuTerlarisKosong)
+                    <div class="no-data-message">
+                        <p>Data menu terlaris tidak ditemukan untuk tahun {{ $tahunDipilih }}.</p>
+                    </div>
+                @else
+                    <table class="table-auto w-full text-sm text-left text-gray-500">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 bg-gray-200">No</th>
+                                <th class="px-4 py-2 bg-gray-200">Menu</th>
+                                <th class="px-4 py-2 bg-gray-200">Jumlah Penjualan</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($menuNames as $index => $menu)
+                                <tr class="border-t">
+                                    <td class="px-4 py-2">{{ $index + 1 }}</td>
+                                    <td class="px-4 py-2">{{ $menu }}</td>
+                                    <td class="px-4 py-2">{{ $menuSales[$index] }} pcs</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            </div>            
         </div>
 
     </div>
@@ -411,7 +448,7 @@
         // Hitung persentase profit atau loss
         let persentase = 0;
         if (totalPendapatan > 0) {
-            persentase = ((profitLoss / totalPendapatan) * 100).toFixed(2); // Persentase Profit/Loss
+            persentase = ((profitLoss / totalPengeluaran) * 100).toFixed(2); // Persentase Profit/Loss
         }
 
         // Menambahkan keterangan profit atau loss dalam persentase

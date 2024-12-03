@@ -76,7 +76,7 @@ class MenuSeeder extends Seeder
                 'harga' => 15000.00,
                 'jenis_menu' => 'Makanan',
                 'gambar_menu' => 'rotibakar.jpg',
-                'created_at' => now(),
+                'created_at' => '2021-02-02',
                 'updated_at' => now(),
                 'deleted_at' => null,
             ],
