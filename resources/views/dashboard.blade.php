@@ -91,11 +91,12 @@
             display: flex;
             gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap; 
         }
 
         .widget-card {
             flex: 1;
-            min-width: 230px;
+            min-width: 390px; 
             background-color: #fff;
             padding: 15px;
             border-radius: 8px;
@@ -266,14 +267,16 @@
         }
 
         .no-data-message {
-            background-color: #f8d7da; /* Warna latar belakang merah muda */
-    color: #721c24; /* Warna teks merah gelap */
-    padding: 10px 20px;
-    border-radius: 6px;
-    margin-top: 20px;
-    font-size: 16px;
-    text-align: center;
-    border: 1px solid #f5c6cb;
+            background-color: #f8d7da;
+            /* Warna latar belakang merah muda */
+            color: #721c24;
+            /* Warna teks merah gelap */
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 16px;
+            text-align: center;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
@@ -305,33 +308,33 @@
 
         <!-- Widget Containers -->
         <div class="widget-container">
-            <div class="widget-card">
-                <div>
-                    <a href="{{ route('pelanggan.index') }}">
+            <a href="{{ route('pelanggan.index') }}">
+                <div class="widget-card">
+                    <div>
                         <h3>Pelanggan</h3>
                         <p>{{ $jumlahPelanggan }}</p>
-                    </a>
+                    </div>
+                    <div><i class="fas fa-users icon"></i></div>
                 </div>
-                <div><i class="fas fa-users icon"></i></div>
-            </div>
-            <div class="widget-card">
-                <div>
-                    <a href="{{ route('menu.index') }}">
+            </a>
+            <a href="{{ route('menu.index') }}">
+                <div class="widget-card">
+                    <div>
                         <h3>Total Menu</h3>
                         <p>{{ $jumlahMenu }}</p>
-                    </a>
+                    </div>
+                    <div><i class="fas fa-utensils icon"></i></div>
                 </div>
-                <div><i class="fas fa-utensils icon"></i></div>
-            </div>
-            <div class="widget-card">
-                <div>
-                    <a href="{{ route('transaksi-penjualan.index') }}">
+            </a>
+            <a href="{{ route('transaksi-penjualan.index') }}">
+                <div class="widget-card">
+                    <div>
                         <h3>Total Pendapatan</h3>
                         <p>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</p>
-                    </a>
+                    </div>
+                    <div><i class="fas fa-dollar-sign icon"></i></div>
                 </div>
-                <div><i class="fas fa-dollar-sign icon"></i></div>
-            </div>
+            </a>
         </div>
 
         <!-- Grafik Penjualan Bulanan -->
@@ -342,8 +345,8 @@
                     <div class="no-data-message">
                         <p>Data Penjualan tidak ditemukan untuk tahun {{ $tahunDipilih }}.</p>
                     </div>
-                @else 
-                <canvas id="salesChart"></canvas>
+                @else
+                    <canvas id="salesChart"></canvas>
                 @endif
             </div>
 
@@ -351,14 +354,14 @@
                 <div>
                     <h3>Balance (Profit / Loss)</h3>
                     @if ($balanceKosong)
-                    <div class="no-data-message">
-                        <p>Data balance (profit/loss) tidak tersedia untuk tahun {{ $tahunDipilih }}.</p>
-                    </div>
-                @else
-                    <canvas id="balanceChart"></canvas>
-                    <div id="balanceDescription">
-                    </div>
-                @endif 
+                        <div class="no-data-message">
+                            <p>Data balance (profit/loss) tidak tersedia untuk tahun {{ $tahunDipilih }}.</p>
+                        </div>
+                    @else
+                        <canvas id="balanceChart"></canvas>
+                        <div id="balanceDescription">
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -372,13 +375,13 @@
                         <p>Data Pengeluaran tidak ditemukan untuk tahun {{ $tahunDipilih }}.</p>
                     </div>
                 @else
-                <canvas id="pengeluaranChart"></canvas>
+                    <canvas id="pengeluaranChart"></canvas>
                 @endif
             </div>
 
             <div class="chart-container">
                 <div class="chart-title">Menu Terlaris</div>
-            
+
                 @if ($menuTerlarisKosong)
                     <div class="no-data-message">
                         <p>Data menu terlaris tidak ditemukan untuk tahun {{ $tahunDipilih }}.</p>
@@ -403,7 +406,7 @@
                         </tbody>
                     </table>
                 @endif
-            </div>            
+            </div>
         </div>
 
     </div>
