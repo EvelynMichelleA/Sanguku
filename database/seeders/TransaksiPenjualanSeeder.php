@@ -27,7 +27,7 @@ class TransaksiPenjualanSeeder extends Seeder
             [
                 'id_pelanggan' => 2,
                 'id_user' => 2,
-                'total_biaya' => 100000.00,
+                'total_biaya' => 10000000.00,
                 'tanggal_transaksi' => now(),
                 'metode_pembayaran' => 'Credit Card',
                 'subtotal'=>100000.00,
