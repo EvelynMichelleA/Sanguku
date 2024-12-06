@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $tahunDipilih =  $request->input('tahun', date('Y'));
 
         // Hitung total penjualan per bulan untuk tahun ini menggunakan SQLite-compatible syntax
-        $penjualanBulanan = TransaksiPenjualan::selectRaw("strftime('%m', tanggal_transaksi) as bulan, SUM(total_biaya) as total")
+        $penjualanBulanan = TransaksiPenjualan::selectRaw("MONTH(tanggal_transaksi) as bulan, SUM(total_biaya) as total")
             ->whereYear('tanggal_transaksi', $tahunDipilih)
             ->groupBy('bulan')
             ->orderBy('bulan')
@@ -35,7 +35,7 @@ class DashboardController extends Controller
             $dataPenjualan[] = $penjualanBulanan[$i] ?? 0;
         }
         $penjualanKosong = count($penjualanBulanan) === 0;
-        $pengeluaranBulanan = Pengeluaran::selectRaw("strftime('%m', tanggal_pengeluaran) as bulan, SUM(total_pengeluaran) as total")
+        $pengeluaranBulanan = Pengeluaran::selectRaw("MONTH(tanggal_pengeluaran) as bulan, SUM(total_pengeluaran) as total")
             ->whereYear('tanggal_pengeluaran', $tahunDipilih)
             ->groupBy('bulan')
             ->orderBy('bulan')
